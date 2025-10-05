@@ -9,6 +9,9 @@ class PilotGPS:
     def getHeading(self):
         return 180
 
+    def getStatus(self):
+        return "OK"
+
 
 
 

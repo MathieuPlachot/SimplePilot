@@ -39,6 +39,15 @@ class PilotMotor:
         self.IN1PWM.change_duty_cycle(0)
         self.IN2PWM.change_duty_cycle(0)
 
+    def getStatus(self):
+        status = {}
+        status["SETPOINT"] = self.setPoint
+        status["CURRENT"] = self.currentHeading
+        status["GPSSTATE"] = self.gps.getStatus()
+        status["MODE"] = self.mode
+        return status
+        
+
 
 
 

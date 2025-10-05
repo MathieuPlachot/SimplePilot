@@ -13,10 +13,10 @@ class Pilot:
         self.setPoint = 0
         self.currentHeading = 0
         self.myUDPHandler = UDPHandler()
-        self.myUDPHandler.start()
+        self.myUDPHandler.startListening()
 
     def refreshClient(self):
-        print("refresh client")
+        self.myUDPHandler.startTransmitting(self.getStatus())
 
     def handleUDP(self):
 
@@ -24,6 +24,8 @@ class Pilot:
 
         if udpCommand == None:
             return
+
+        print("UDP", udpCommand)
 
         if self.mode == "MANU":
             if udpCommand == UDPHandler.LEFT:
@@ -80,6 +82,14 @@ class Pilot:
         result["SPEED"] = 0
         result["DIR"] = 0
         return result
+
+    def getStatus(self):
+        status = {}
+        status["SETPOINT"] = self.setPoint
+        status["CURRENT"] = self.currentHeading
+        status["GPSSTATE"] = self.myGPS.getStatus()
+        status["MODE"] = self.mode
+        return status
 
     def run(self):
 
