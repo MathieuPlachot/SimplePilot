@@ -1,4 +1,4 @@
-This is a Simple GPS based tiller pilot project.
+This is a Simple GPS based tiller pilot project (In Progress).
 
 The control unit:
 * Retrieves route data from an NMEA compatible GPS
