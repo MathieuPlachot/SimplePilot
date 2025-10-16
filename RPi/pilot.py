@@ -95,6 +95,7 @@ class Pilot:
 
         while True:
             self.handleUDP()
+            self.currentHeading = self.myGPS.getGPSRoute()
 
             # self.currentHeading = self.myGPS.getHeading()
             # if self.mode == "AUTO":
