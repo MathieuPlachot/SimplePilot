@@ -13,4 +13,4 @@ The user interface allows to:
   
 It is written in Flutter and tested on Android.
 
-<img width="620" height="1329" alt="image" src="https://github.com/user-attachments/assets/e175d7a7-b3a8-4e06-8c01-421dd41353a9" />
+<img width="310" height="750" alt="image" src="https://github.com/user-attachments/assets/e175d7a7-b3a8-4e06-8c01-421dd41353a9" />
