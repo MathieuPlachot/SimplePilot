@@ -26,6 +26,12 @@ class PilotMotor:
 
     def command(self, speed, direction):
         # print("Motor ", speed, direction)
+
+        print("DUTY",speed)
+
+        if speed > 98:
+            speed = 98
+        
         GPIO.output(self.EN_GPIO, GPIO.HIGH)
         if direction == PilotMotor.OUTWARDS:
             self.IN1PWM.change_duty_cycle(0)

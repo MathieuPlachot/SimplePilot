@@ -1,13 +1,16 @@
 import serial
 import threading
-
+import time
+import random
 
 
 class PilotGPS:
 
     def __init__(self):
-        
+
         self.listeningThread = threading.Thread(target=self.listen)
+        self.testListeningThread = threading.Thread(target=self.testListen)
+
         self.RMCData = {}
         self.listening = True
 
@@ -16,6 +19,8 @@ class PilotGPS:
             self.listeningThread.start()
         except:
             print("Could not connect to GPS")
+
+        self.testListeningThread.start()
 
     def listen(self):
         while self.listening:
@@ -33,11 +38,20 @@ class PilotGPS:
                 self.RMCData["ROUTE"] = RMCList[8]
                 print(self.RMCData)
 
+    def testListen(self):
+        sign = 1
+        init = random.randint(0,360)
+        while self.listening:
+            time.sleep(1)
+            if not "ROUTE" in self.RMCData:
+                self.RMCData["ROUTE"] = init
+            else:
+                self.RMCData["ROUTE"] = random.randint(init-5,init+5)
+
     def getGPSRoute(self):
         if "ROUTE" in self.RMCData:
             if self.RMCData["ROUTE"] != "":
-                # return self.RMCData["ROUTE"]
-                return self.RMCData["SPEED"]
+                return self.RMCData["ROUTE"]
         return "-"
 
     def getStatus(self):
