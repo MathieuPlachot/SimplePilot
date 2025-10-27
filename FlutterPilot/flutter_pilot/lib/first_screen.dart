@@ -107,7 +107,7 @@ class _FirstPageState extends State<FirstPage> {
       child:
         ElevatedButton(
           style: squareButtonStyle,
-          onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SecondPage()));},
+          onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => LabeledFormView()));},
           child: Text(
             "Settings",
             softWrap: false,
