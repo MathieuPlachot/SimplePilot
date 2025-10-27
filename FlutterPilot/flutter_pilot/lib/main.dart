@@ -3,7 +3,7 @@ import 'package:flutter_pilot/udp_handler.dart';
 import 'package:flutter_pilot/first_screen.dart';
 
 
-const Color bleuPetrole = Color.fromARGB(255, 36, 221, 83);
+const Color bleuPetrole = Color.fromARGB(255, 255, 255, 255);
 
 void main() {
   runApp(const MyApp());
@@ -47,16 +47,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return MaterialApp(
       title: 'SimplePilot Remote',
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 0, 0, 0),
         colorScheme: ColorScheme.dark(
-          primary: bleuPetrole,
+          primary: const Color.fromARGB(255, 255, 255, 255),
           onPrimary: Colors.white,
-          onSurface: bleuPetrole,
+          onSurface: const Color.fromARGB(255, 249, 250, 252),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey[850],
-            foregroundColor: bleuPetrole,
+            backgroundColor: const Color.fromARGB(255, 56, 78, 107),
+            foregroundColor: const Color.fromARGB(255, 252, 253, 254),
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
             ),

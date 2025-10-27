@@ -20,8 +20,8 @@ class _FirstPageState extends State<FirstPage> {
 
   List<String> statusLabels1 = ["MODE:", "GPS:", "LNK:"];
   List<String> statusValues1 = ["UNK", "UNK", "UNK"];
-  List<String> statusLabels2 = ["SET:", "CURRENT:"];
-  List<String> statusValues2 = ["UNK", "UNK"];
+  List<String> statusLabels2 = ["SET:", "CURRENT:", "SPEED:"];
+  List<String> statusValues2 = ["UNK", "UNK", "UNK"];
 
   @override
   void initState() {
@@ -56,7 +56,7 @@ class _FirstPageState extends State<FirstPage> {
               padding: const EdgeInsets.all(4.0),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  double fontSize = constraints.maxHeight * 0.2;
+                  double fontSize = constraints.maxHeight * 0.18;
                   return SizedBox.expand(
                     child: paramAndValueText(labels[index],values[index], fontSize),
                   );
@@ -125,9 +125,9 @@ class _FirstPageState extends State<FirstPage> {
           buildTextRow(statusLabels1, statusValues1),
           buildTextRow(statusLabels2, statusValues2),
           buildButtonRow(['AUTO', 'MANU']),
-          buildButtonRow(['SET']),
+          buildButtonRow(['SET HEADING']),
           buildButtonRow(['<<<', '>>>']),
-          settingsButton(context),
+          Row(children: [settingsButton(context),]),
         ],
       ),
     );

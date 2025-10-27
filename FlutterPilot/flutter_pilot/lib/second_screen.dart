@@ -6,6 +6,14 @@ class LabeledFormView extends StatefulWidget {
 }
 
 class _LabeledFormViewState extends State<LabeledFormView> {
+
+  final List<String> parametersList = [
+    'Server IP',
+    'Kp (Proportional Coefficient)',
+    'Ki (Integral Coefficient)',
+    'Kd (Derivative Coefficient)',
+  ];
+
   final List<TextEditingController> _controllers = List.generate(
     10,
     (_) => TextEditingController(),
@@ -26,7 +34,7 @@ class _LabeledFormViewState extends State<LabeledFormView> {
         children: [
           Expanded(
             flex: 2,
-            child: Text('Label ${index + 1}:'),
+            child: Text(parametersList[index]),
           ),
           SizedBox(width: 10),
           Expanded(
@@ -52,7 +60,7 @@ class _LabeledFormViewState extends State<LabeledFormView> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: _controllers.length,
+              itemCount: parametersList.length,
               itemBuilder: (context, index) => _buildLabeledTextField(index),
             ),
           ),
