@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'dart:convert';
+import 'package:flutter_pilot/udp_handler.dart';
+import 'package:flutter_pilot/first_screen.dart';
+
 
 const Color bleuPetrole = Color.fromARGB(255, 36, 221, 83);
 
@@ -44,7 +45,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'UDP Button Sender',
+      title: 'SimplePilot Remote',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
         colorScheme: ColorScheme.dark(
@@ -71,194 +72,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           titleLarge: TextStyle(color: bleuPetrole),
         ),
       ),
-      home: ButtonPage(),
+      home: FirstPage(),
     );
   }
 }
 
-class ButtonPage extends StatefulWidget {
-  const ButtonPage({super.key});
 
-  @override
-  State<ButtonPage> createState() => _ButtonPageState();
-}
 
-class _ButtonPageState extends State<ButtonPage> {
-  final UDPHandler myUDPHandler = UDPHandler();
-  final ButtonStyle squareButtonStyle = ElevatedButton.styleFrom(
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-    padding: EdgeInsets.zero,
-  );
 
-  List<String> statusLabels1 = ["MODE:", "GPS:", "LNK:"];
-  List<String> statusValues1 = ["UNK", "UNK", "UNK"];
-  List<String> statusLabels2 = ["SET:", "CURRENT:"];
-  List<String> statusValues2 = ["UNK", "UNK"];
-
-  @override
-  void initState() {
-    super.initState();
-    myUDPHandler.setUpdateCallback(updateStatus);
-    myUDPHandler.listenIncomingUDP();
-  }
-
-  void updateStatus(String message) {
-    setState(() {
-      print(message);
-      final pilotStatusJson = json.decode(message);
-      statusValues1 = [pilotStatusJson["MODE"], pilotStatusJson["GPSSTATE"], pilotStatusJson["LNK"].toString()];
-      statusValues2 = [pilotStatusJson["SETPOINT"].toString(), pilotStatusJson["CURRENT"].toString()];
-    });
-  }
-
-  Widget paramAndValueText(String paramName, String paramValue, double fontSize){
-    return Text(
-      '$paramName\n$paramValue',
-      style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-      textAlign: TextAlign.center,
-    );
-  }
-
-  Widget buildTextRow(List<String> labels, List<String> values) {
-    return Expanded(
-      child: Row(
-        children: List.generate(labels.length, (index) {
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  double fontSize = constraints.maxHeight * 0.2;
-                  return SizedBox.expand(
-                    child: paramAndValueText(labels[index],values[index], fontSize),
-                  );
-                },
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget myButton(String label, double fontSize){
-    return ElevatedButton(
-      style: squareButtonStyle,
-      onPressed: () => myUDPHandler.sendUDPMessage(label),
-      child: Text(
-        label,
-        softWrap: false,
-        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),)
-    );
-  }
-
-  Widget buildButtonRow(List<String> labels) {
-    return Expanded(
-      child: Row(
-        children: labels.map((label) {
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(4.0),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  double fontSize = constraints.maxHeight * 0.2;
-                  return SizedBox.expand(
-                    child: myButton(label, fontSize),
-                  );
-                },
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget navigationButtonsRow(){
-    return Expanded(
-      child: Row(
-        children: [
-          myButton("test", 10),
-          myButton("text", 10),
-        ]
-      )
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('')),
-      body: Column(
-        children: [
-          buildTextRow(statusLabels1, statusValues1),
-          buildTextRow(statusLabels2, statusValues2),
-          buildButtonRow(['AUTO', 'MANU']),
-          buildButtonRow(['SET']),
-          buildButtonRow(['<<<', '>>>']),
-          navigationButtonsRow(),
-        ],
-      ),
-    );
-  }
-}
-
-class UDPHandler {
-  bool foreground = true;
-  Function(String)? onUpdate;
-
-  void setForeground(bool value) {
-    foreground = value;
-  }
-
-  void setUpdateCallback(Function(String) callback) {
-    onUpdate = callback;
-  }
-
-  Future<void> requestPeriodicRefresh() async {
-    var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
-    var message = '\x06';
-    var data = message.codeUnits;
-    var server = InternetAddress('10.3.141.1');
-    var port = 1234;
-
-    while (foreground) {
-      socket.send(data, server, port);
-      await Future.delayed(const Duration(milliseconds: 500));
-    }
-  }
-
-  Future<void> listenIncomingUDP() async {
-    var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 5678);
-    socket.listen((RawSocketEvent event) {
-      if (event == RawSocketEvent.read) {
-        var datagram = socket.receive();
-        if (datagram != null) {
-          String message = String.fromCharCodes(datagram.data);
-          print(message);
-          if (onUpdate != null) {
-            onUpdate!(message);
-          }
-        }
-      }
-    });
-  }
-
-  Future<void> sendUDPMessage(String label) async {
-    var messages = {
-      'AUTO': '\x01',
-      'MANU': '\x02',
-      'SET': '\x05',
-      '<<<': '\x03',
-      '>>>': '\x04',
-    };
-
-    var message = messages[label] ?? '';
-    var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
-    var data = message.codeUnits;
-    var server = InternetAddress('10.3.141.1');
-    var port = 1234;
-
-    socket.send(data, server, port);
-  }
-}
