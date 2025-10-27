@@ -14,7 +14,10 @@ class Pilot:
         self.currentHeading = 0
         self.myUDPHandler = UDPHandler()
         self.myUDPHandler.startListening()
-        self.Kp = 10
+        self.prevError = None
+        self.prevTime = None
+        self.Kp = 1
+        self.Kd = 1
 
 
 
@@ -28,7 +31,7 @@ class Pilot:
         if udpCommand == None:
             return
 
-        # print("UDP", udpCommand)
+        #print("UDP", udpCommand)
 
         if self.mode == "MANU":
             if udpCommand == UDPHandler.LEFT:
@@ -83,6 +86,8 @@ class Pilot:
 
     def smallestError(self, setPoint, currentHeading):
         e = None
+        setPoint = float(setPoint)
+        currentHeading = float(currentHeading)
         if abs(setPoint - currentHeading) <=180:
             e = currentHeading - setPoint
         else:
@@ -98,11 +103,24 @@ class Pilot:
 
     def commandFromError(self, error):
         result = {}
-        result["SPEED"] = self.Kp * abs(error)
-        if error > 0 :
-            result["DIR"] = PilotMotor.OUTWARDS
-        else:
+
+        error_rate = 0
+        if self.prevError != None and error != self.prevError:
+            currentTime = time.time()
+            delta_t = currentTime - self.prevTime
+            delta_err = error - self.prevError
+            error_rate = delta_err / delta_t
+            self.prevError = error
+            self.prevTime = currentTime
+
+        signedSpeed = self.Kp * error + self.Kd * error_rate
+
+        result["SPEED"] = abs(signedSpeed)
+
+        if signedSpeed > 0 :
             result["DIR"] = PilotMotor.INWARDS
+        else:
+            result["DIR"] = PilotMotor.OUTWARDS
         return result
 
     def getStatus(self):

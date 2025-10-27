@@ -10,7 +10,6 @@ void main() {
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
-
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -112,6 +111,14 @@ class _ButtonPageState extends State<ButtonPage> {
     });
   }
 
+  Widget paramAndValueText(String paramName, String paramValue, double fontSize){
+    return Text(
+      '$paramName\n$paramValue',
+      style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+      textAlign: TextAlign.center,
+    );
+  }
+
   Widget buildTextRow(List<String> labels, List<String> values) {
     return Expanded(
       child: Row(
@@ -123,11 +130,7 @@ class _ButtonPageState extends State<ButtonPage> {
                 builder: (context, constraints) {
                   double fontSize = constraints.maxHeight * 0.2;
                   return SizedBox.expand(
-                    child: Text(
-                      '${labels[index]}\n${values[index]}',
-                      style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
+                    child: paramAndValueText(labels[index],values[index], fontSize),
                   );
                 },
               ),
@@ -138,26 +141,29 @@ class _ButtonPageState extends State<ButtonPage> {
     );
   }
 
+  Widget myButton(String label, double fontSize){
+    return ElevatedButton(
+      style: squareButtonStyle,
+      onPressed: () => myUDPHandler.sendUDPMessage(label),
+      child: Text(
+        label,
+        softWrap: false,
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),)
+    );
+  }
+
   Widget buildButtonRow(List<String> labels) {
     return Expanded(
       child: Row(
         children: labels.map((label) {
           return Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(4.0),
+              padding: EdgeInsets.all(4.0),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   double fontSize = constraints.maxHeight * 0.2;
                   return SizedBox.expand(
-                    child: ElevatedButton(
-                      style: squareButtonStyle,
-                      onPressed: () => myUDPHandler.sendUDPMessage(label),
-                      child: Text(
-                        label,
-                        softWrap: false,
-                        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                    child: myButton(label, fontSize),
                   );
                 },
               ),
@@ -165,6 +171,17 @@ class _ButtonPageState extends State<ButtonPage> {
           );
         }).toList(),
       ),
+    );
+  }
+
+  Widget navigationButtonsRow(){
+    return Expanded(
+      child: Row(
+        children: [
+          myButton("test", 10),
+          myButton("text", 10),
+        ]
+      )
     );
   }
 
@@ -179,6 +196,7 @@ class _ButtonPageState extends State<ButtonPage> {
           buildButtonRow(['AUTO', 'MANU']),
           buildButtonRow(['SET']),
           buildButtonRow(['<<<', '>>>']),
+          navigationButtonsRow(),
         ],
       ),
     );
@@ -201,7 +219,7 @@ class UDPHandler {
     var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
     var message = '\x06';
     var data = message.codeUnits;
-    var server = InternetAddress('192.168.1.95');
+    var server = InternetAddress('10.3.141.1');
     var port = 1234;
 
     while (foreground) {
@@ -238,28 +256,9 @@ class UDPHandler {
     var message = messages[label] ?? '';
     var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
     var data = message.codeUnits;
-    var server = InternetAddress('192.168.1.95');
+    var server = InternetAddress('10.3.141.1');
     var port = 1234;
 
     socket.send(data, server, port);
-  }
-}
-
-class PilotStatus {
-  final int setPoint;
-  final int current;
-  final String gpsState;
-  final String mode;
-
-  PilotStatus({required this.setPoint, required this.current, required this.gpsState, required this.mode});
-
-  // Factory pour convertir un objet JSON en instance de User
-  factory PilotStatus.fromJson(Map json) {
-    return PilotStatus(
-      setPoint: json['SETPOINT'],
-      current: json['CURRENT'],
-      gpsState: json['GPSSTATE'],
-      mode: json['MODE'],
-    );
   }
 }
