@@ -11,7 +11,9 @@ class FirstPage extends StatefulWidget {
   State<FirstPage> createState() => _FirstPageState();
 }
 
-class _FirstPageState extends State<FirstPage> {
+class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
+
+  bool _isInForeground = true;
   final UDPHandler myUDPHandler = UDPHandler();
   final ButtonStyle squareButtonStyle = ElevatedButton.styleFrom(
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -28,6 +30,24 @@ class _FirstPageState extends State<FirstPage> {
     super.initState();
     myUDPHandler.setUpdateCallback(updateStatus);
     myUDPHandler.listenIncomingUDP();
+    myUDPHandler.requestPeriodicRefresh();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    _isInForeground = state == AppLifecycleState.resumed;
+    myUDPHandler.setForeground(_isInForeground);
+    if (_isInForeground) {
+      myUDPHandler.requestPeriodicRefresh();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   void updateStatus(String message) {
@@ -107,7 +127,7 @@ class _FirstPageState extends State<FirstPage> {
       child:
         ElevatedButton(
           style: squareButtonStyle,
-          onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => LabeledFormView()));},
+          onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => LabeledFormView(myUDPHandler : this.myUDPHandler)));},
           child: Text(
             "Settings",
             softWrap: false,

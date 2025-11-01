@@ -15,30 +15,15 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  bool _isInForeground = true;
-  final UDPHandler myUDPHandler = UDPHandler();
+class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    myUDPHandler.requestPeriodicRefresh();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    _isInForeground = state == AppLifecycleState.resumed;
-    myUDPHandler.setForeground(_isInForeground);
-    if (_isInForeground) {
-      myUDPHandler.requestPeriodicRefresh();
-    }
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

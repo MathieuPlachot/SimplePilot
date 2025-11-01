@@ -1,7 +1,10 @@
 import 'dart:io';
 
 class UDPHandler {
+
   bool foreground = true;
+  String ipAddr = '10.3.141.1';
+
   Function(String)? onUpdate;
 
   void setForeground(bool value) {
@@ -16,7 +19,7 @@ class UDPHandler {
     var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
     var message = '\x06';
     var data = message.codeUnits;
-    var server = InternetAddress('10.3.141.1');
+    var server = InternetAddress(ipAddr);
     var port = 1234;
 
     while (foreground) {
@@ -53,7 +56,7 @@ class UDPHandler {
     var message = messages[label] ?? '';
     var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
     var data = message.codeUnits;
-    var server = InternetAddress('10.3.141.1');
+    var server = InternetAddress(ipAddr);
     var port = 1234;
 
     socket.send(data, server, port);

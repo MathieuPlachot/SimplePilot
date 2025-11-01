@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pilot/udp_handler.dart';
 
 class LabeledFormView extends StatefulWidget {
+
+  
+  late UDPHandler myUDPHandler;
+  LabeledFormView({Key? key, required this.myUDPHandler}) : super(key: key);
+
   @override
   _LabeledFormViewState createState() => _LabeledFormViewState();
 }
