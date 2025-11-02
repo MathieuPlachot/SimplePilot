@@ -57,6 +57,11 @@ class PilotGPS:
         if "VALIDITY" in self.RMCData:
             return self.RMCData["VALIDITY"]
         return "-"
+    
+    def getSpeed(self):
+        if "SPEED" in self.RMCData:
+            return self.RMCData["SPEED"]
+        return "-"
 
     
 

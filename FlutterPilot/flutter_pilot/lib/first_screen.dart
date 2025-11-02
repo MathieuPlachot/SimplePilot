@@ -55,7 +55,7 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
       print(message);
       final pilotStatusJson = json.decode(message);
       statusValues1 = [pilotStatusJson["MODE"], pilotStatusJson["GPSSTATE"], pilotStatusJson["LNK"].toString()];
-      statusValues2 = [pilotStatusJson["SETPOINT"].toString(), pilotStatusJson["CURRENT"].toString()];
+      statusValues2 = [pilotStatusJson["SETPOINT"].toString(), pilotStatusJson["CURRENT"].toString(), pilotStatusJson["SPEED"].toString()];
     });
   }
 

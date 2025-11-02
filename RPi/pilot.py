@@ -10,14 +10,16 @@ class Pilot:
         self.myMotor = PilotMotor()
         self.myGPS = PilotGPS()
         self.mode = "MANU"
-        self.setPoint = 7
+        self.setPoint = 0
         self.currentHeading = 0
+        self.speed = 0
         self.myUDPHandler = UDPHandler()
         self.myUDPHandler.startListening()
         self.prevError = None
         self.prevTime = None
         self.Kp = 1
         self.Kd = 1
+        self.Ki = 1
 
 
 
@@ -129,6 +131,10 @@ class Pilot:
         status["CURRENT"] = self.currentHeading
         status["GPSSTATE"] = self.myGPS.getStatus()
         status["MODE"] = self.mode
+        status["SPEED"] = self.myGPS.getSpeed()
+        status["KP"] = self.Kp
+        status["KD"] = self.Kd
+        status["KI"] = self.Ki
         return status
 
     def run(self):
