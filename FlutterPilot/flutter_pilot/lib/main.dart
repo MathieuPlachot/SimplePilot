@@ -66,6 +66,7 @@ class _MyAppState extends State<MyApp> {
 // Show connection status as a top bar
 // Send and display Kp,Ki,Kd, IP Addr
 // Improve info display
+// Continuous movement in manual mode
 
 
 

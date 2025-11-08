@@ -8,12 +8,13 @@ import json
 
 class UDPHandler:
 
-    REFRESH = b'\x06'
     AUTO = b'\x01'
     MANU = b'\x02'
     LEFT = b'\x03'
     RIGHT = b'\x04'
     SET = b'\x05'
+    REFRESH = b'\x06'
+
 
     def __init__(self):
 

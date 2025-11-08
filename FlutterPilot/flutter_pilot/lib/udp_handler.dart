@@ -48,7 +48,7 @@ class UDPHandler {
     var messages = {
       'AUTO': '\x01',
       'MANU': '\x02',
-      'SET': '\x05',
+      'SET HEADING': '\x05',
       '<<<': '\x03',
       '>>>': '\x04',
     };
