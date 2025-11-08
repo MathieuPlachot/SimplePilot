@@ -35,7 +35,7 @@ class PilotGPS:
                 self.RMCData["LONEW"] = RMCList[6]
                 self.RMCData["SPEED"] = RMCList[7]
                 self.RMCData["ROUTE"] = RMCList[8]
-                print(self.RMCData)
+                # print(self.RMCData)
 
     def testListen(self):
         sign = 1

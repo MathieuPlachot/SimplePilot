@@ -89,6 +89,45 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
     );
   }
 
+  Widget setHeadingButton(double fontSize){
+    return ElevatedButton(
+      style: squareButtonStyle,
+      onPressed: () => sendSetHeadingCommand(),
+      child: Text(
+        "SET HEADING",
+        softWrap: false,
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),)
+    );
+  }
+
+  void sendSetHeadingCommand(){
+    // String commandJson = '{COMMAND:"SET"}';
+    final commandJson = {"COMMAND": "SET",};
+    myUDPHandler.sendCommand(commandJson);
+  }
+
+  Widget buildButtonRowFromButtons(List<Widget> buttons) {
+    return Expanded(
+      child: Row(
+        children: buttons.map((button) {
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(4.0),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  double fontSize = constraints.maxHeight * 0.2;
+                  return SizedBox.expand(
+                    child: button,
+                  );
+                },
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget pilotCommandButton(String label, double fontSize){
     return ElevatedButton(
       style: squareButtonStyle,
@@ -100,7 +139,7 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
     );
   }
 
-  Widget buildButtonRow(List<String> labels) {
+  Widget buildButtonRowFromLabels(List<String> labels) {
     return Expanded(
       child: Row(
         children: labels.map((label) {
@@ -144,9 +183,9 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
         children: [
           buildTextRow(statusLabels1, statusValues1),
           buildTextRow(statusLabels2, statusValues2),
-          buildButtonRow(['AUTO', 'MANU']),
-          buildButtonRow(['SET HEADING']),
-          buildButtonRow(['<<<', '>>>']),
+          buildButtonRowFromLabels(['AUTO', 'MANU']),
+          buildButtonRowFromButtons([setHeadingButton(20),]),
+          buildButtonRowFromLabels(['<<<', '>>>']),
           Row(children: [settingsButton(context),]),
         ],
       ),

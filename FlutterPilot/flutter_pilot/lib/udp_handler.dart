@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 class UDPHandler {
 
@@ -61,4 +62,15 @@ class UDPHandler {
 
     socket.send(data, server, port);
   }
+
+  Future<void> sendCommand(Map<String, String> commandJson) async {
+
+    var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
+    var server = InternetAddress(ipAddr);
+    var port = 1234;
+
+    final data = json.encode(commandJson).codeUnits;
+    socket.send(data, server, port);
+  }
+
 }

@@ -27,7 +27,7 @@ class PilotMotor:
     def command(self, speed, direction):
         # print("Motor ", speed, direction)
 
-        print("DUTY",speed)
+        # print("DUTY",speed)
 
         if speed > 98:
             speed = 98
