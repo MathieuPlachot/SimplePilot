@@ -6,6 +6,8 @@ It aims at providing an easy to deploy and easy to use tiller pilot system with 
 
 It is written in python for the control unit part, and in Flutter for the user interface part.
 
+<img width="1316" height="917" alt="SimplePilotAndroid" src="https://github.com/user-attachments/assets/da071ef6-ece0-460a-ad5e-ff9824d5b4d0" />
+
 # Architecture
 
 The control unit:
