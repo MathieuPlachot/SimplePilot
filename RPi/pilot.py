@@ -138,7 +138,7 @@ class Pilot:
             delta_t = currentTime - self.prevTime
             delta_err = self.error - self.prevError
             self.error_rate = delta_err / delta_t
-            print("delta err delta_t error_rate", delta_err, delta_t, self.error_rate)
+            # print("delta err delta_t error_rate", delta_err, delta_t, self.error_rate)
 
         if self.prevError != self.error:
             self.prevTime = currentTime
