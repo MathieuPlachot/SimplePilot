@@ -21,11 +21,15 @@ The user interface:
 * Visualizes and set target GPS route
 * Sets main parameters (PID controller coefficients, control unit IP address ...)
 
-# Hardware Requirements
+# Hardware & Software Requirements
 
 Following hardware is necessary:
 * Control unit : A computer with Python and PWM output capability (Raspberry Pi Zero WH is used for development & testing)
 * User interface : any Android, IOS, Mac, Linux or Windows device with Wifi (Debian & Android are used for development & testing)
 * Motor driver board : any driver board converting PWM to you desired output voltage and current depending on the actuator used (this one is uesed for development & testing : https://www.amazon.fr/dp/B08DHW5HCQ)
 * Linear actuator : any  fast enough linear actuator compatible with you driver board. Fast enough might depend on the boat and sea conditions, trial and error might be needed. (this one has been used for development & testing : https://www.amazon.fr/dp/B0CFYNY23P).
+
+# Installation
+
+Yet to be written
 
