@@ -33,5 +33,5 @@ Following hardware is necessary:
 
 # Installation
 
-Yet to be written kikoo
+Yet to be written 
 
