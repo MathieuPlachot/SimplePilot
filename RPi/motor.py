@@ -33,10 +33,10 @@ class PilotMotor:
             speed = 98
         
         GPIO.output(self.EN_GPIO, GPIO.HIGH)
-        if direction == PilotMotor.OUTWARDS:
+        if direction == PilotMotor.INWARDS:
             self.IN1PWM.change_duty_cycle(0)
             self.IN2PWM.change_duty_cycle(speed)
-        elif direction == PilotMotor.INWARDS:
+        elif direction == PilotMotor.OUTWARDS:
             self.IN2PWM.change_duty_cycle(0)
             self.IN1PWM.change_duty_cycle(speed)
 
