@@ -1,33 +1,20 @@
-try:
-    import serial
-except Exception as e:
-    print("Import Failed")
-    print(e)
-
+import serial
 import threading
 import time
-import random
-
 
 class PilotGPS:
 
-    def __init__(self, testing):
-
-        self.testing = testing
+    def __init__(self):
 
         self.listeningThread = threading.Thread(target=self.listen)
-        self.testListeningThread = threading.Thread(target=self.testListen)
         self.RMCData = {}
         self.listening = True
 
-        if self.testing:
-            self.testListeningThread.start()
-        else:
-            try:
-                self.ser = serial.Serial("/dev/ttyACM0", baudrate=9600)
-                self.listeningThread.start()
-            except Exception as e:
-                print("Could not connect to GPS.", e)
+        try:
+            self.ser = serial.Serial("/dev/ttyACM0", baudrate=9600)
+            self.listeningThread.start()
+        except Exception as e:
+            print("Could not connect to GPS.", e)
 
     def listen(self):
         while self.listening:

@@ -18,7 +18,7 @@ class UDPHandler:
 
     def __init__(self):
 
-        UDP_IP = "10.3.141.1"
+        UDP_IP = "127.0.0.1"
         UDP_PORT_RCV = 1234
         UDP_PORT_REP = 5678
 
