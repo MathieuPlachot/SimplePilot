@@ -4,7 +4,9 @@ import 'dart:convert';
 class UDPHandler {
 
   bool foreground = true;
-  String ipAddr = '10.3.141.1';
+  // String ipAddr = '10.3.141.1';
+  String ipAddr = '127.0.0.2';
+
 
   Function(String)? onUpdate;
 

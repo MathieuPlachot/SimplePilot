@@ -1,16 +1,12 @@
 import serial
 import threading
 import time
-import random
-
 
 class PilotGPS:
 
     def __init__(self):
 
         self.listeningThread = threading.Thread(target=self.listen)
-        self.testListeningThread = threading.Thread(target=self.testListen)
-
         self.RMCData = {}
         self.listening = True
 
@@ -18,8 +14,7 @@ class PilotGPS:
             self.ser = serial.Serial("/dev/ttyACM0", baudrate=9600)
             self.listeningThread.start()
         except Exception as e:
-            print("Could not connect to GPS. Starting simulation thread.", e)
-            self.testListeningThread.start()
+            print("Could not connect to GPS.", e)
 
     def listen(self):
         while self.listening:
