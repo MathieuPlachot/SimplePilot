@@ -8,14 +8,14 @@ import sys
 
 class Pilot:
 
-    def __init__(self, Kp, Kd, Ki):
-        self.myMotor = PilotMotor()
-        self.myGPS = PilotGPS()
+    def __init__(self, Kp, Kd, Ki, testing):
+        self.myMotor = PilotMotor(testing)
+        self.myGPS = PilotGPS(testing)
         self.mode = "MANU"
         self.setPoint = 0
         self.currentHeading = 0
         self.speed = 0
-        self.myUDPHandler = UDPHandler()
+        self.myUDPHandler = UDPHandler(testing)
         self.myUDPHandler.startListening()
         self.prevError = None
         self.prevTime = None
@@ -42,7 +42,7 @@ class Pilot:
         if udpCommand == None:
             return
 
-        # print("UDP", udpCommand)
+        print("UDP", udpCommand)
 
         try:
             commandDict = json.loads(udpCommand)
@@ -188,5 +188,12 @@ class Pilot:
 Kp = sys.argv[1] #1
 Kd = sys.argv[2] #10
 Ki = sys.argv[3] #0
-myPilot = Pilot(Kp, Kd, Ki)
+
+testing = False
+if(len(sys.argv)>=5):
+    if(sys.argv[4] == "testing"):
+        print("Testing Mode")
+        testing = True
+
+myPilot = Pilot(Kp, Kd, Ki, testing)
 myPilot.run()

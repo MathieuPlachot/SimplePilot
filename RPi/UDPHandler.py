@@ -16,9 +16,13 @@ class UDPHandler:
     REFRESH = b'\x06'
 
 
-    def __init__(self):
+    def __init__(self, testing):
 
-        UDP_IP = "10.3.141.1"
+        if testing:
+            UDP_IP = "127.0.0.1"
+        else:
+            UDP_IP = "10.3.141.1"
+
         UDP_PORT_RCV = 1234
         UDP_PORT_REP = 5678
 
@@ -56,7 +60,7 @@ class UDPHandler:
                 # print("Timeout")
 
     def transmitStatus(self, pilotStatus):
-        # print(self.clientAddress)
+        print("[UDPHandler]", self.clientAddress)
         pilotStatus["LNK"] = self.heartBeat
 
         if self.heartBeat == 0:
