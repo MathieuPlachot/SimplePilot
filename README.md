@@ -34,5 +34,14 @@ Following hardware is necessary:
 # Installation
 
 Yet to be written
-Mod on dev2
 
+# Usage
+## Running the Control Unit Application
+
+To launch the control unit application, run the following command from the RPi folder:
+
+'''
+python3 pilot.py Kp Kd Ki
+'''
+
+Kp, Kd, Ki being the PID coefficients to be used by the application (for example 1 10 0)
