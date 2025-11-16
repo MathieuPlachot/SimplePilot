@@ -42,7 +42,7 @@ class Pilot:
         if udpCommand == None:
             return
 
-        print("UDP", udpCommand)
+        # print("UDP", udpCommand)
 
         try:
             commandDict = json.loads(udpCommand)
@@ -62,13 +62,13 @@ class Pilot:
 
         if self.mode == "MANU":
             if udpCommand == UDPHandler.LEFT:
-                print("GO LEFT")
+                # print("GO LEFT")
                 self.myMotor.command(98, PilotMotor.OUTWARDS)
                 time.sleep(0.5)
                 self.myMotor.stop()
                 return
             elif udpCommand == UDPHandler.RIGHT:
-                print("GO RIGHT")
+                # print("GO RIGHT")
                 self.myMotor.command(98, PilotMotor.INWARDS)
                 time.sleep(0.5)
                 self.myMotor.stop()

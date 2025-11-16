@@ -15,26 +15,23 @@ class UDPHandler:
     SET = "SET"
     REFRESH = b'\x06'
 
+    UDP_IP = "0.0.0.0" # Any
+    UDP_PORT_RCV = 1234
+    UDP_PORT_REP = 5678
+
 
     def __init__(self):
 
-        UDP_IP = "127.0.0.1"
-        UDP_PORT_RCV = 1234
-        UDP_PORT_REP = 5678
+        
 
-        self.rcvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.rcvSock.bind((UDP_IP, UDP_PORT_RCV))
-        self.rcvSock.settimeout(3)
-
-        self.repSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.repSock.bind((UDP_IP, UDP_PORT_REP))
-        self.repSock.settimeout(3)
+        self.srvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # TCP Socket
+        self.srvSock.bind((UDPHandler.UDP_IP, UDPHandler.UDP_PORT_RCV))
 
         self.listeningThread = threading.Thread(target=self.listen)
         self.transmittingThread = threading.Thread(target=self.transmitStatus)
         self.listening = True
         self.lastCommand = None
-        self.clientAddress = None
+        self.lastClientAddress = None
 
         self.heartBeat = 0
 
@@ -44,19 +41,15 @@ class UDPHandler:
         return command
 
     def listen(self):
-        i = 0
         while self.listening:
-            # print("Listening")
-            try:
-                data, addr = self.rcvSock.recvfrom(1024) # buffer size is 1024 bytes
-                self.lastCommand = data
-                self.clientAddress = addr
-            except:
-                pass
-                # print("Timeout")
+            data, addr = self.srvSock.recvfrom(1024)
+            print("[UDPHandler] Received data from", addr, "[", data, "]")
+            self.lastCommand = data
+            self.lastClientAddress = addr
 
     def transmitStatus(self, pilotStatus):
-        print("[UDPHandler]", self.clientAddress)
+        print("[UDPHandler] Transmitting status to", self.lastClientAddress)
+
         pilotStatus["LNK"] = self.heartBeat
 
         if self.heartBeat == 0:
@@ -66,7 +59,8 @@ class UDPHandler:
         
         pilotStatusJsonString = json.dumps(pilotStatus)
         pilotStatusJsonStringBytes = pilotStatusJsonString.encode('utf-8')
-        self.repSock.sendto(pilotStatusJsonStringBytes, (self.clientAddress[0],5678))
+        self.srvSock.sendto(pilotStatusJsonStringBytes, (self.lastClientAddress[0],UDPHandler.UDP_PORT_REP))
+        
         return
 
     def startTransmitting(self, pilotStatus):
