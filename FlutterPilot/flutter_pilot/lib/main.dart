@@ -1,20 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pilot/first_screen.dart';
 
+import 'package:flutter_pilot/pages/about_page.dart';
+import 'package:flutter_pilot/pages/home_shell.dart';
+import 'package:flutter_pilot/styles/app_themes.dart';
+// import 'package:flutter_pilot/udp_handler.dart';
+// import 'package:flutter_pilot/first_screen.dart';
 
-const Color bleuPetrole = Color.fromARGB(255, 255, 255, 255);
+// const Color bleuPetrole = Color.fromARGB(255, 255, 255, 255);
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: AppTheme.darkTheme,
+      home: HomeShell(),
+      routes: {'/about': (_) => AboutPage()},
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
+// class MyApp extends StatefulWidget {
+//   const MyApp({super.key});
+//   @override
+//   State<MyApp> createState() => _MyAppState();
+// }
+
+/* class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
@@ -59,14 +76,10 @@ class _MyAppState extends State<MyApp> {
       home: FirstPage(),
     );
   }
-}
+}*/
 
 // ToDo
 // Show connection status as a top bar
 // Send and display Kp,Ki,Kd, IP Addr
 // Improve info display
 // Continuous movement in manual mode
-
-
-
-
