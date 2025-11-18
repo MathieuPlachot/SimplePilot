@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_pilot/pages/about_page.dart';
 import 'package:flutter_pilot/pages/home_shell.dart';
+import 'package:flutter_pilot/services/udp_handler.dart';
 import 'package:flutter_pilot/styles/app_themes.dart';
-// import 'package:flutter_pilot/udp_handler.dart';
-// import 'package:flutter_pilot/first_screen.dart';
+import 'package:provider/provider.dart';
 
 // const Color bleuPetrole = Color.fromARGB(255, 255, 255, 255);
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(create: (_) => UDPHandler(), child: SimplePilot()),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SimplePilot extends StatelessWidget {
+  const SimplePilot({super.key});
 
   @override
   Widget build(BuildContext context) {

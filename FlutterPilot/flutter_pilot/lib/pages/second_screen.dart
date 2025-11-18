@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pilot/udp_handler.dart';
 
-class LabeledFormView extends StatefulWidget {
-
-  
-  late UDPHandler myUDPHandler;
-  LabeledFormView({Key? key, required this.myUDPHandler}) : super(key: key);
-
+class SecondScreen extends StatefulWidget {
   @override
-  _LabeledFormViewState createState() => _LabeledFormViewState();
+  State<SecondScreen> createState() => _SecondScreenState();
 }
 
-class _LabeledFormViewState extends State<LabeledFormView> {
-
+class _SecondScreenState extends State<SecondScreen> {
   final List<String> parametersList = [
     'Server IP',
     'Kp (Proportional Coefficient)',
@@ -38,10 +31,7 @@ class _LabeledFormViewState extends State<LabeledFormView> {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
         children: [
-          Expanded(
-            flex: 2,
-            child: Text(parametersList[index]),
-          ),
+          Expanded(flex: 2, child: Text(parametersList[index])),
           SizedBox(width: 10),
           Expanded(
             flex: 5,
@@ -61,7 +51,6 @@ class _LabeledFormViewState extends State<LabeledFormView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
       body: Column(
         children: [
           Expanded(

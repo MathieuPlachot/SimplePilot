@@ -7,7 +7,7 @@ import 'settings_page.dart';
 
 class HomeShell extends StatefulWidget {
   @override
-  _HomeShellState createState() => _HomeShellState();
+  State<HomeShell> createState() => _HomeShellState();
 }
 
 class _HomeShellState extends State<HomeShell> {
