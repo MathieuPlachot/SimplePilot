@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:flutter_pilot/udp_handler.dart';
-import 'package:flutter_pilot/second_screen.dart';
+import 'package:flutter_pilot/services/udp_handler.dart';
+import 'package:provider/provider.dart';
 
-
-class FirstPage extends StatefulWidget {
-  const FirstPage({super.key});
+class FirstScreen extends StatefulWidget {
+  const FirstScreen({super.key});
 
   @override
-  State<FirstPage> createState() => _FirstPageState();
+  State<FirstScreen> createState() => _FirstScreenState();
 }
 
-class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
-
+class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
   bool _isInForeground = true;
-  final UDPHandler myUDPHandler = UDPHandler();
+  late final myUDPHandler = Provider.of<UDPHandler>(context);
   final ButtonStyle squareButtonStyle = ElevatedButton.styleFrom(
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     padding: EdgeInsets.zero,
@@ -54,12 +52,24 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
     setState(() {
       print(message);
       final pilotStatusJson = json.decode(message);
-      statusValues1 = [pilotStatusJson["MODE"], pilotStatusJson["GPSSTATE"], pilotStatusJson["LNK"].toString()];
-      statusValues2 = [pilotStatusJson["SETPOINT"].toString(), pilotStatusJson["CURRENT"].toString(), pilotStatusJson["SPEED"].toString()];
+      statusValues1 = [
+        pilotStatusJson["MODE"],
+        pilotStatusJson["GPSSTATE"],
+        pilotStatusJson["LNK"].toString(),
+      ];
+      statusValues2 = [
+        pilotStatusJson["SETPOINT"].toString(),
+        pilotStatusJson["CURRENT"].toString(),
+        pilotStatusJson["SPEED"].toString(),
+      ];
     });
   }
 
-  Widget paramAndValueText(String paramName, String paramValue, double fontSize){
+  Widget paramAndValueText(
+    String paramName,
+    String paramValue,
+    double fontSize,
+  ) {
     return Text(
       '$paramName\n$paramValue',
       style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
@@ -78,7 +88,11 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
                 builder: (context, constraints) {
                   double fontSize = constraints.maxHeight * 0.18;
                   return SizedBox.expand(
-                    child: paramAndValueText(labels[index],values[index], fontSize),
+                    child: paramAndValueText(
+                      labels[index],
+                      values[index],
+                      fontSize,
+                    ),
                   );
                 },
               ),
@@ -89,20 +103,21 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
     );
   }
 
-  Widget setHeadingButton(double fontSize){
+  Widget setHeadingButton(double fontSize) {
     return ElevatedButton(
       style: squareButtonStyle,
       onPressed: () => sendSetHeadingCommand(),
       child: Text(
         "SET HEADING",
         softWrap: false,
-        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),)
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
-  void sendSetHeadingCommand(){
+  void sendSetHeadingCommand() {
     // String commandJson = '{COMMAND:"SET"}';
-    final commandJson = {"COMMAND": "SET",};
+    final commandJson = {"COMMAND": "SET"};
     myUDPHandler.sendCommand(commandJson);
   }
 
@@ -115,10 +130,8 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
               padding: EdgeInsets.all(4.0),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  double fontSize = constraints.maxHeight * 0.2;
-                  return SizedBox.expand(
-                    child: button,
-                  );
+                  // double fontSize = constraints.maxHeight * 0.2;
+                  return SizedBox.expand(child: button);
                 },
               ),
             ),
@@ -128,14 +141,15 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
     );
   }
 
-  Widget pilotCommandButton(String label, double fontSize){
+  Widget pilotCommandButton(String label, double fontSize) {
     return ElevatedButton(
       style: squareButtonStyle,
       onPressed: () => myUDPHandler.sendUDPMessage(label),
       child: Text(
         label,
         softWrap: false,
-        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),)
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
@@ -161,20 +175,6 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
     );
   }
 
-  Widget settingsButton(BuildContext context){
-    return Expanded(
-      child:
-        ElevatedButton(
-          style: squareButtonStyle,
-          onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => LabeledFormView(myUDPHandler : this.myUDPHandler)));},
-          child: Text(
-            "Settings",
-            softWrap: false,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),)
-        )
-      );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,9 +184,8 @@ class _FirstPageState extends State<FirstPage>  with WidgetsBindingObserver{
           buildTextRow(statusLabels1, statusValues1),
           buildTextRow(statusLabels2, statusValues2),
           buildButtonRowFromLabels(['AUTO', 'MANU']),
-          buildButtonRowFromButtons([setHeadingButton(20),]),
+          buildButtonRowFromButtons([setHeadingButton(20)]),
           buildButtonRowFromLabels(['<<<', '>>>']),
-          Row(children: [settingsButton(context),]),
         ],
       ),
     );

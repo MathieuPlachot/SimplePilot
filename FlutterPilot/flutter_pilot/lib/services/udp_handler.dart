@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'dart:convert';
 
-class UDPHandler {
+import 'package:flutter/material.dart';
 
+// notifyListeners(); // notify widgets to rebuild
+
+class UDPHandler extends ChangeNotifier {
   bool foreground = true;
   // String ipAddr = '10.3.141.1';
   String ipAddr = '127.0.0.1';
-
 
   Function(String)? onUpdate;
 
@@ -66,7 +68,6 @@ class UDPHandler {
   }
 
   Future<void> sendCommand(Map<String, String> commandJson) async {
-
     var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
     var server = InternetAddress(ipAddr);
     var port = 1234;
@@ -74,5 +75,4 @@ class UDPHandler {
     final data = json.encode(commandJson).codeUnits;
     socket.send(data, server, port);
   }
-
 }
