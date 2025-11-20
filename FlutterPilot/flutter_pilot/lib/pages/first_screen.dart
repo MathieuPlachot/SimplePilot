@@ -12,7 +12,7 @@ class FirstScreen extends StatefulWidget {
 
 class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
   bool _isInForeground = true;
-  late final myUDPHandler = Provider.of<UDPHandler>(context);
+  late final UDPHandler myUDPHandler;
   final ButtonStyle squareButtonStyle = ElevatedButton.styleFrom(
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     padding: EdgeInsets.zero,
@@ -26,6 +26,12 @@ class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    myUDPHandler = Provider.of<UDPHandler>(context);
     myUDPHandler.setUpdateCallback(updateStatus);
     myUDPHandler.listenIncomingUDP();
     myUDPHandler.requestPeriodicRefresh();
@@ -178,7 +184,7 @@ class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('')),
+      // appBar: AppBar(title: const Text('')),
       body: Column(
         children: [
           buildTextRow(statusLabels1, statusValues1),
