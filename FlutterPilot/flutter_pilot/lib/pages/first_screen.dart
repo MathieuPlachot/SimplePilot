@@ -122,8 +122,7 @@ class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
   }
 
   void sendSetHeadingCommand() {
-    // String commandJson = '{COMMAND:"SET"}';
-    final commandJson = {"COMMAND": "SET"};
+    final Map<String, String> commandJson = {"COMMAND": "SET"};
     myUDPHandler.sendCommand(commandJson);
   }
 
@@ -136,7 +135,6 @@ class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
               padding: EdgeInsets.all(4.0),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  // double fontSize = constraints.maxHeight * 0.2;
                   return SizedBox.expand(child: button);
                 },
               ),
@@ -184,7 +182,6 @@ class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(title: const Text('')),
       body: Column(
         children: [
           buildTextRow(statusLabels1, statusValues1),
