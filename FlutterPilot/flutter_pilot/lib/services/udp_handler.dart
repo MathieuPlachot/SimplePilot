@@ -5,14 +5,15 @@ import 'package:flutter/material.dart';
 // notifyListeners(); // notify widgets to rebuild
 
 class UDPHandler extends ChangeNotifier {
-  bool foreground = true;
-  // String ipAddr = '10.3.141.1';
-  String ipAddr = '127.0.0.1';
+  bool _foreground = true;
+  String _serverIpAddress = '127.0.0.1'; // '10.3.141.1';
+  int _serverPort = 1234;
+  int _pollingRate = 500; // every 500ms
 
   Function(String)? onUpdate;
 
   void setForeground(bool value) {
-    foreground = value;
+    _foreground = value;
   }
 
   void setUpdateCallback(Function(String) callback) {
@@ -20,23 +21,28 @@ class UDPHandler extends ChangeNotifier {
   }
 
   Future<void> requestPeriodicRefresh() async {
-    var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
-    var message = '\x06';
-    var data = message.codeUnits;
-    var server = InternetAddress(ipAddr);
-    var port = 1234;
+    RawDatagramSocket socket = await RawDatagramSocket.bind(
+      InternetAddress.anyIPv4,
+      0,
+    );
+    String message = '\x06';
+    List<int> data = message.codeUnits;
+    InternetAddress server = InternetAddress(_serverIpAddress);
 
-    while (foreground) {
-      socket.send(data, server, port);
-      await Future.delayed(const Duration(milliseconds: 500));
+    while (_foreground) {
+      socket.send(data, server, _serverPort);
+      await Future.delayed(Duration(milliseconds: _pollingRate));
     }
   }
 
   Future<void> listenIncomingUDP() async {
-    var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 5678);
+    RawDatagramSocket socket = await RawDatagramSocket.bind(
+      InternetAddress.anyIPv4,
+      5678,
+    );
     socket.listen((RawSocketEvent event) {
       if (event == RawSocketEvent.read) {
-        var datagram = socket.receive();
+        Datagram? datagram = socket.receive();
         if (datagram != null) {
           String message = String.fromCharCodes(datagram.data);
           print(message);
@@ -49,7 +55,7 @@ class UDPHandler extends ChangeNotifier {
   }
 
   Future<void> sendUDPMessage(String label) async {
-    var messages = {
+    Map<String, String> messages = {
       'AUTO': '\x01',
       'MANU': '\x02',
       'SET HEADING': '\x05',
@@ -57,21 +63,24 @@ class UDPHandler extends ChangeNotifier {
       '>>>': '\x04',
     };
 
-    var message = messages[label] ?? '';
-    var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
-    var data = message.codeUnits;
-    var server = InternetAddress(ipAddr);
-    var port = 1234;
+    String message = messages[label] ?? '';
+    RawDatagramSocket socket = await RawDatagramSocket.bind(
+      InternetAddress.anyIPv4,
+      0,
+    );
+    List<int> data = message.codeUnits;
+    InternetAddress server = InternetAddress(_serverIpAddress);
 
-    socket.send(data, server, port);
+    socket.send(data, server, _serverPort);
   }
 
-  Future<void> sendCommand(Map<String, String> commandJson) async {
-    var socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
-    var server = InternetAddress(ipAddr);
-    var port = 1234;
-
-    final data = json.encode(commandJson).codeUnits;
-    socket.send(data, server, port);
+  Future<void> sendCommand(Map<String, dynamic> commandJson) async {
+    RawDatagramSocket socket = await RawDatagramSocket.bind(
+      InternetAddress.anyIPv4,
+      0,
+    );
+    InternetAddress server = InternetAddress(_serverIpAddress);
+    final List<int> data = json.encode(commandJson).codeUnits;
+    socket.send(data, server, _serverPort);
   }
 }
