@@ -45,3 +45,64 @@ python3 pilot.py Kp Kd Ki
 ```
 
 Kp, Kd, Ki being the PID coefficients to be used by the application (for example 1 10 0)
+
+# Interfaces
+## Control Unit <-> User Interface
+
+The interface between the control unit application and the user interface application relies on UDP exchanges based on JSON format.
+
+The general structure of commands from the user interface to the control unit is as follows :
+
+{COMMAND:"cmd_name", PARAMETER_1:"param1_value", PARAMETER_2 ...}
+
+Following commands are defined :
+
+Command: "REFRESH"
+Parameters: None
+Purpose: request the control unit to send back statuses to the requester
+
+Command: "SET"
+Parameters: None
+Purpose: request the control unit to use the current measured heading as its new setpoint.
+
+Command: "SET_MODE"
+Parameters: MODE
+Purpose: request the control unit to switch its mode to MODE ("AUTO"/"MANU"/"WAYPOINT").
+
+Command: "APPLY_PARAMS"
+Parameters: KP, KI, KD
+Purpose: ordrequester the control unit to apply (without saving) the parameters provided for KP, KD and KI coefficients.
+
+Command: "APPLY_SAVE_PARAMS"
+Parameters: KP, KI, KD
+Purpose: request the control unit to apply and save the parameters provided for KP, KD and KI coefficients.
+
+Command: "INCREASE_SETPOINT"
+Parameters: VALUE
+Purpose: request the control unit to increase the current setpoint by VALUE degrees.
+
+Command: "DECREASE_SETPOINT"
+Parameters: VALUE
+Purpose: request the control unit to decrease the current setpoint by VALUE degrees.
+
+Command: "INCREASE_TILLER"
+Parameters: DURATION
+Purpose: request the control unit to move the tiller towards increasing heading at full duty cycle during DURATION seconds.
+
+Command: "DECREASE_TILLER"
+Parameters: DURATION
+Purpose: request the control unit to move the tiller towards decreasing heading at full duty cycle during DURATION seconds.
+
+The statuses from the control unit application to the user interface application follow the below format :
+
+{MODE:"mode", KP:"kp_value", KD:"kd_value", KI:"ki_value", CURRENT:"current_heading", SETPOINT:"setpoint", SPEED:"speed", GPS_VALIDITY:"gps_validity"}
+
+with:
+mode: current mode of the control unit (AUTO/MANU)
+kp_value: current value of Kp coefficient used by the control unit
+kd_value: current value of Kd coefficient used by the control unit
+ki_value: current value of Ki coefficient used by the control unit
+current_heading: current heading measured by the control unit
+setpoints: current setpoint targeted by the control unit
+speed: current speed measured by the control unit
+gps_validity: validity status of GPS information provided to the control unit
