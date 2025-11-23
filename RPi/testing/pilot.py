@@ -30,7 +30,9 @@ class Pilot:
         self.Ci = 0
         self.Cd = 0
 
-
+    def saveParamToConf(self, paramName, paramValue):
+        print("Saving value", paramValue, "to configuration for parameter", paramName)
+        return
 
     def refreshClient(self):
         self.myUDPHandler.startTransmitting(self.getStatus())
@@ -53,59 +55,81 @@ class Pilot:
                 if self.currentHeading != "-":
                     self.setPoint = float(self.currentHeading)
                     return
-
-        except Exception as e:
-            pass
-            # print("Could not interpret UDP data")
-            # print(e)
-
-
-        if self.mode == "MANU":
-            if udpCommand == UDPHandler.LEFT:
-                # print("GO LEFT")
-                self.myMotor.command(98, PilotMotor.OUTWARDS)
-                time.sleep(0.5)
-                self.myMotor.stop()
-                return
-            elif udpCommand == UDPHandler.RIGHT:
-                # print("GO RIGHT")
-                self.myMotor.command(98, PilotMotor.INWARDS)
-                time.sleep(0.5)
-                self.myMotor.stop()
+            
+            elif commandDict["COMMAND"] == UDPHandler.SET_MODE:
+                if commandDict["MODE"] == "AUTO":
+                    print("SET_MODE AUTO")
+                    self.mode = "AUTO"
+                    return
+                elif commandDict["MODE"] == "MANU":
+                    print("SET_MODE MANU")
+                    self.myMotor.stop()
+                    self.mode = "MANU"
+                    return
+                else:
+                    print("SET_MODE not managed:", commandDict["MODE"])
+                    return
+                
+            elif commandDict["COMMAND"] == UDPHandler.REFRESH:
+                print("REFRESH")
+                self.refreshClient()
                 return
             
-        if self.mode == "AUTO":
-            if udpCommand == UDPHandler.LEFT:
-                if self.setPoint >= 10:
-                    self.setPoint-=10
+            elif commandDict["COMMAND"] == UDPHandler.INCREASE_TILLER:
+                if self.mode == "MANU":
+                    duration = float(commandDict["DURATION"])
+                    self.myMotor.command(98, PilotMotor.INWARDS)
+                    time.sleep(duration)
+                    self.myMotor.stop()
+                    return
                 else:
-                    self.setPoint = 360 - (10 - self.setPoint)
-                return
-            if udpCommand == UDPHandler.RIGHT:
-                if self.setPoint < 350:
-                    self.setPoint+=10
+                    return # Not applicable in not MANU mode
+
+            elif commandDict["COMMAND"] == UDPHandler.DECREASE_TILLER:
+                if self.mode == "MANU":
+                    duration = float(commandDict["DURATION"])
+                    self.myMotor.command(98, PilotMotor.OUTWARDS)
+                    time.sleep(duration)
+                    self.myMotor.stop()
+                    return
                 else:
-                    self.setPoint = 10 - (360 - self.setPoint)
+                    return # Not applicable in not MANU mode
+                
+            elif commandDict["COMMAND"] == UDPHandler.INCREASE_SETPOINT:
+                value = commandDict["VALUE"]
+                if self.setPoint < 360 - value:
+                    self.setPoint+=value
+                else:
+                    self.setPoint = value - (360 - self.setPoint)
                 return
-        
-        if udpCommand == UDPHandler.AUTO:
-            print("AUTO")
-            self.mode = "AUTO"
-            return
+            
+            elif commandDict["COMMAND"] == UDPHandler.DECREASE_SETPOINT:
+                value = commandDict["VALUE"]
+                if self.setPoint >= value:
+                    self.setPoint-=value
+                else:
+                    self.setPoint = 360 - (value - self.setPoint)
+                return
+            
+            elif commandDict["COMMAND"] == UDPHandler.APPLY_PARAMS:
+                self.Kp = commandDict["KP"]
+                self.Ki = commandDict["KI"]
+                self.Kd = commandDict["KD"]
+                return
+            
+            elif commandDict["COMMAND"] == UDPHandler.APPLY_SAVE_PARAMS:
+                self.Kp = commandDict["KP"]
+                self.Ki = commandDict["KI"]
+                self.Kd = commandDict["KD"]
+                self.saveParamToConf("KP", self.Kp)
+                self.saveParamToConf("KI", self.Ki)
+                self.saveParamToConf("KD", self.Kd)
+                return
 
-        if udpCommand == UDPHandler.MANU:
-            print("MANU")
-            self.myMotor.stop()
-            self.mode = "MANU"
-            return
-
-
-
-        if udpCommand == UDPHandler.REFRESH:
-            self.refreshClient()
-            return
-
-        return
+        except Exception as e:
+            print("Could not interpret UDP command")
+            print(e)
+            pass
 
     def smallestError(self, setPoint, currentHeading):
         e = None
