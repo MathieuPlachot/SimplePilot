@@ -9,6 +9,7 @@ import sys
 class Pilot:
 
     def __init__(self, Kp, Kd, Ki):
+        self.loadParamsFromConf()
         self.myMotor = PilotMotor()
         self.myGPS = PilotGPS()
         self.mode = "MANU"
@@ -21,7 +22,6 @@ class Pilot:
         self.myUDPHandler.startListening()
         self.prevError = None
         self.prevTime = None
-        print("Kp", Kp, "Kd", Kd, "Ki", Ki)
         self.Kp = float(Kp)
         self.Kd = float(Kd)
         self.Ki = float(Ki)
@@ -35,6 +35,24 @@ class Pilot:
     def saveParamToConf(self, paramName, paramValue):
         print("Saving value", paramValue, "to configuration for parameter", paramName)
         return
+    
+    def loadParamsFromConf(self):
+
+        loadedParams = {}
+
+        scriptDir = "/".join(__file__.split("/")[:-1])
+        confFile = open(scriptDir + "/.pilotconf.txt", "r")
+        for line in confFile.readlines():
+            print(line)
+            if line.startswith("#"):
+                continue
+            if "=" in line:
+                paramName = line.split("=")[0].replace(" ","").replace("\n","")
+                paramValue = line.split("=")[1].replace(" ","").replace("\n","")
+                loadedParams[paramName] = paramValue
+        print(loadedParams)
+        return loadedParams
+
 
     def refreshClient(self):
         self.myUDPHandler.startTransmitting(self.getStatus())

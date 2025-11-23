@@ -1,0 +1,16 @@
+# PID startup coefficients
+
+KP = 1
+KI = 1
+KD = 1
+
+# ROUTES
+
+START ROUTE MyRoute
+    0000.00,N 00000.00,E
+    0000.00,N 00000.00,E
+    0000.00,N 00000.00,E
+    0000.00,N 00000.00,E
+    0000.00,N 00000.00,E
+    0000.00,N 00000.00,E
+END ROUTE
