@@ -2,29 +2,29 @@ from motor import PilotMotor
 from gps import PilotGPS
 from UDPHandler import UDPHandler
 from Utilities import calc
+from pathlib import Path
 import time
 import json
 import sys
 
 class Pilot:
 
-    def __init__(self, Kp, Kd, Ki):
-        self.loadParamsFromConf()
+    def __init__(self):
+        self.currentParameters = self.loadParamsFromConf()
+        self.saveParamsToConf()
         self.myMotor = PilotMotor()
         self.myGPS = PilotGPS()
         self.mode = "MANU"
-        self.currentWPTRoute = None
-        self.currentWPT = None
-        self.setPoint = 0
-        self.currentHeading = 0
-        self.speed = 0
+        self.currentWPTRouteName = "ROUTE1"
+        self.currentWPTName = None
+        self.currentWPTDistance = None
+        self.setPoint = 90
+        self.currentHeading = None
+        self.currentSpeed = None
         self.myUDPHandler = UDPHandler()
         self.myUDPHandler.startListening()
         self.prevError = None
         self.prevTime = None
-        self.Kp = float(Kp)
-        self.Kd = float(Kd)
-        self.Ki = float(Ki)
         self.error_rate = 0
         self.command = 0
         self.error = 0
@@ -32,30 +32,21 @@ class Pilot:
         self.Ci = 0
         self.Cd = 0
 
-    def saveParamToConf(self, paramName, paramValue):
-        print("Saving value", paramValue, "to configuration for parameter", paramName)
+    def saveParamsToConf(self):
+        scriptDir = Path(__file__).parent
+        confPath = scriptDir / ".pilotconf.txt"
+        confFile = open(confPath, "w")
+        confFile.write(json.dumps(self.currentParameters, indent = 4))
+        confFile.close()
         return
     
     def loadParamsFromConf(self):
-
-        loadedParams = {}
-
-        scriptDir = "/".join(__file__.split("/")[:-1])
-        confFile = open(scriptDir + "/.pilotconf.txt", "r")
-        for line in confFile.readlines():
-            print(line)
-            if line.startswith("#"):
-                continue
-            if "=" in line:
-                paramName = line.split("=")[0].replace(" ","").replace("\n","")
-                paramValue = line.split("=")[1].replace(" ","").replace("\n","")
-                loadedParams[paramName] = paramValue
-        print(loadedParams)
-        return loadedParams
-
-
-    def refreshClient(self):
-        self.myUDPHandler.startTransmitting(self.getStatus())
+        scriptDir = Path(__file__).parent
+        confPath = scriptDir / ".pilotconf.txt"        
+        confFile = open(confPath, "r")
+        jsonString = confFile.read()
+        confFile.close()
+        return json.loads(jsonString)
 
     def handleUDP(self):
 
@@ -72,7 +63,7 @@ class Pilot:
 
             if commandDict["COMMAND"] == UDPHandler.SET:
                 print("SET ", self.currentHeading)
-                if self.currentHeading != "-":
+                if self.currentHeading != None:
                     self.setPoint = float(self.currentHeading)
                     return
             
@@ -92,7 +83,7 @@ class Pilot:
                 
             elif commandDict["COMMAND"] == UDPHandler.REFRESH:
                 print("REFRESH")
-                self.refreshClient()
+                self.myUDPHandler.startTransmitting(self.getStatus())
                 return
             
             elif commandDict["COMMAND"] == UDPHandler.INCREASE_TILLER:
@@ -132,18 +123,16 @@ class Pilot:
                 return
             
             elif commandDict["COMMAND"] == UDPHandler.APPLY_PARAMS:
-                self.Kp = commandDict["KP"]
-                self.Ki = commandDict["KI"]
-                self.Kd = commandDict["KD"]
+                self.currentParameters["KP"] = commandDict["KP"]
+                self.currentParameters["KI"] = commandDict["KI"]
+                self.currentParameters["KD"] = commandDict["KD"]
                 return
             
             elif commandDict["COMMAND"] == UDPHandler.APPLY_SAVE_PARAMS:
-                self.Kp = commandDict["KP"]
-                self.Ki = commandDict["KI"]
-                self.Kd = commandDict["KD"]
-                self.saveParamToConf("KP", self.Kp)
-                self.saveParamToConf("KI", self.Ki)
-                self.saveParamToConf("KD", self.Kd)
+                self.currentParameters["KP"] = commandDict["KP"]
+                self.currentParameters["KI"] = commandDict["KI"]
+                self.currentParameters["KD"] = commandDict["KD"]
+                self.saveParamsToConf()
                 return
 
         except Exception as e:
@@ -151,24 +140,83 @@ class Pilot:
             print(e)
             pass
 
+    def interpolateCoeffWithSpeed(self, coeffName):
+
+        maxBelow = None
+        maxBelowRank = None
+        minAbove = None
+        minAboveRank = None
+        closest = None
+        closestRank = None
+
+        settingRank = 0
+
+        for setting in self.currentParameters["PID_SETTINGS"]:
+            
+            settingSpeed = setting["SPEED"]
+
+            if settingSpeed == self.currentSpeed:
+                return setting[coeffName]
+            
+            if maxBelow == None:
+                if settingSpeed < self.currentSpeed:
+                    maxBelow = settingSpeed
+                    maxBelowRank = settingRank
+            else:
+                if settingSpeed > maxBelow and settingSpeed < self.currentSpeed:
+                    maxBelow = settingSpeed
+                    maxBelowRank = settingRank
+            
+            if minAbove == None:
+                if settingSpeed > self.currentSpeed:
+                    minAbove = settingSpeed
+                    minAboveRank = settingRank
+            else:
+                if settingSpeed < minAbove and settingSpeed > self.currentSpeed:
+                    minAbove = settingSpeed
+                    minAboveRank = settingRank
+            
+            if closest == None:
+                closest = settingSpeed
+                closestRank = settingRank
+            else:
+                if abs(settingSpeed - self.currentSpeed) < abs(closest - self.currentSpeed):
+                    closest = settingSpeed
+                    closestRank = settingRank
+            
+            settingRank+=1
+
+        if maxBelow == None or minAbove == None:
+            return self.currentParameters["PID_SETTINGS"][closestRank][coeffName]
+        else:
+            upperSpeedCoeff = self.currentParameters["PID_SETTINGS"][minAboveRank][coeffName]
+            lowerSpeedCoeff = self.currentParameters["PID_SETTINGS"][maxBelowRank][coeffName]
+            result = ((self.currentSpeed - maxBelow) / (minAbove - maxBelow)) * (upperSpeedCoeff - lowerSpeedCoeff) + lowerSpeedCoeff
+            return result
+
     def commandFromError(self):
         result = {}
 
+        Kp = self.interpolateCoeffWithSpeed("KP")
+        Ki = self.interpolateCoeffWithSpeed("KI")
+        Kd = self.interpolateCoeffWithSpeed("KD")
+
+        # print("Kp", Kp)
+
         # self.error_rate = 0
-        currentTime = time.time()
 
         if self.prevError != None and self.error != self.prevError:
-            delta_t = currentTime - self.prevTime
+            delta_t = self.currentTime - self.prevTime
             delta_err = self.error - self.prevError
             self.error_rate = delta_err / delta_t
             # print("delta err delta_t error_rate", delta_err, delta_t, self.error_rate)
 
         if self.prevError != self.error:
-            self.prevTime = currentTime
+            self.prevTime = self.currentTime
         self.prevError = self.error
         
-        self.Cp = self.Kp * self.error
-        self.Cd = self.Kd * self.error_rate
+        self.Cp = Kp * self.error
+        self.Cd = Kd * self.error_rate
         
         signedSpeed = self.Cp + self.Cd
 
@@ -187,38 +235,124 @@ class Pilot:
         status["GPSSTATE"] = self.myGPS.getStatus()
         status["MODE"] = self.mode
         status["SPEED"] = self.myGPS.getSpeed()
-        status["KP"] = self.Kp
-        status["KD"] = self.Kd
-        status["KI"] = self.Ki
+        status["KP"] = self.currentParameters["KP"]
+        status["KD"] = self.currentParameters["KD"]
+        status["KI"] = self.currentParameters["KI"]
         return status
+    
+    def routeRankFromRouteName(self, routeName):
+        rank = 0
+        for route in self.currentParameters["ROUTES"]:
+            if route["NAME"] == routeName:
+                return rank
+            rank+=1
+        return None
+    
+    def wptRankFromRouteNameAndWptName(self, routeName, wptName):
+        
+        rank = 0
+
+        routeRank = self.routeRankFromRouteName(routeName)
+        wptList = self.currentParameters["ROUTES"][routeRank]["WAYPOINTS"]
+
+        for wpt in wptList:
+            if wpt["NAME"] == wptName:
+                return rank
+            else:
+                rank+=1
+
+
+    
+    def wptDataFromRouteAndWPTName(self, routeName, wptName):
+        # print("Find wpt data", routeName, wptName)
+        routeRank = self.routeRankFromRouteName(routeName)
+        wptRank = self.wptRankFromRouteNameAndWptName(routeName, wptName)
+        return self.currentParameters["ROUTES"][routeRank]["WAYPOINTS"][wptRank]
+
+    def selectClosestWaypointFromCurrentRoute(self):
+        lowestDistance = None
+        currentRouteRank = self.routeRankFromRouteName(self.currentWPTRouteName)
+        currentRouteDefinition = self.currentParameters["ROUTES"][currentRouteRank]
+        currentRouteWaypointsList = currentRouteDefinition["WAYPOINTS"]
+
+        for wpt in currentRouteWaypointsList:
+
+            wptDistance = calc.distAndBearingAtoB(self.currentPosition, wpt)["DISTANCE"]
+
+            if lowestDistance == None:
+                lowestDistance = wptDistance
+                self.currentWPTName = wpt["NAME"]
+            elif wptDistance < lowestDistance:
+                lowestDistance = wptDistance
+                self.currentWPTName = wpt["NAME"]
+
+    # Select the next waypoint in the current route. If current waypoint is already the last of the route, fallback to MANU mode.
+    def selectNextWaypointFromCurrentRoute(self):
+
+        currentRouteRank = self.routeRankFromRouteName(self.currentWPTRouteName)
+        currentRouteDefinition = self.currentParameters["ROUTES"][currentRouteRank]
+        currentRouteWaypointsList = currentRouteDefinition["WAYPOINTS"]
+
+        currentWayPointRankInRoute = self.wptRankFromRouteNameAndWptName(self.currentWPTRouteName, self.currentWPTName)
+        
+        if currentWayPointRankInRoute == len(currentRouteWaypointsList) - 1:
+            print("End of route : switching to MANU mode")
+            self.currentWPTName = None
+            self.currentWPTRouteName = None
+            self.mode = "MANU"
+        else:
+            self.currentWPTName = self.currentParameters["ROUTES"][currentRouteRank]["WAYPOINTS"][currentWayPointRankInRoute + 1]["NAME"]
+            return
+
 
     def run(self):
-        cycle = 0
+        lastDebugTime = 0
         while True:
-            cycle+=1
+            self.currentTime = time.time()
             self.handleUDP()
-            self.currentHeading = self.myGPS.getGPSRoute()
-            self.currentPosition = self.myGPS.getGPSPosition()
+
+            try:
+                self.currentHeading = self.myGPS.getGPSRoute()
+                self.currentPosition = self.myGPS.getGPSPosition()
+                self.currentSpeed = float(self.myGPS.getSpeed())
+            except:
+                print("Missing GPS data")
+                continue
+
 
             if self.mode == "WAYPOINT":
-                self.currentWPT = {}
-                self.currentWPT["LATITUDE"] = "0000.00,N"
-                self.currentWPT["LONGITUDE"] = "00000.00,E"
-                self.setPoint = calc.distAndBearingAtoB(self.currentPosition, self.currentWPT)["BEARING"]
+
+                if not self.currentWPTRouteName:
+                    print("No route selected for WPT mode. Falling back to MANU mode")
+                    self.mode = "MANU"
+                elif self.currentWPTName == None: # If no current waypoint is defined, select the closest one from current position
+                    self.selectClosestWaypointFromCurrentRoute()
+                    print("No current Waypoint, selecting closest waypoint", self.currentWPTName)
+                
+                # print("crurrent route", self.currentWPTRouteName)
+                # print("current wpt", self.currentWPTName)
+                wptData = self.wptDataFromRouteAndWPTName(self.currentWPTRouteName,self.currentWPTName)
+                distAndBearingToWaypoint = calc.distAndBearingAtoB(self.currentPosition, wptData)
+
+                # Set setPoint towards current waypoint
+                self.setPoint = distAndBearingToWaypoint["BEARING"]
+                self.currentWPTDistance = distAndBearingToWaypoint["DISTANCE"]
+
+                # If getting close to the current waypoint, target the next waypoint of the route
+                if self.currentWPTDistance <= self.currentParameters["WAYPOINT_SWITCHING_THRESHOLD"]:
+                    print("Reached Waypoint, switching to next.")
+                    self.selectNextWaypointFromCurrentRoute()
 
             if self.mode == "AUTO" or self.mode == "WAYPOINT":
-                if(self.setPoint != "-" and self.currentHeading != "-"):
+                if(self.setPoint != None and self.currentHeading != None):
                     self.error = calc.smallestError(self.setPoint, self.currentHeading)
                     command = self.commandFromError()
                     self.myMotor.command(command["SPEED"], command["DIR"])
-                    if cycle % 100 == 0:
-                        print("SET", self.setPoint, "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", command)
+                    if self.currentTime - lastDebugTime >= 0.5:
+                        print("MODE", self.mode, "ROUTE", self.currentWPTRouteName, "WPT", self.currentWPTName, "WPT_DIST", self.currentWPTDistance, "SET", self.setPoint, "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", command)
+                        lastDebugTime = self.currentTime
 
-Kp = sys.argv[1] #1
-Kd = sys.argv[2] #10
-Ki = sys.argv[3] #0
-
-myPilot = Pilot(Kp, Kd, Ki)
+myPilot = Pilot()
 myPilot.run()
 
 # ToDo

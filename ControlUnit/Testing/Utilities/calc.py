@@ -21,42 +21,53 @@ def smallestError(setPoint, currentHeading):
 
 def latGPRMCtoNumericDegrees(latGPRMC):
     sign = None
-    if latGPRMC[8] == "N":
+
+    degrees = int(latGPRMC[0:2])
+    minutes = float(latGPRMC[2:-2])
+    direction = latGPRMC.split(",")[1]
+
+    if direction == "N":
         sign = 1
-    elif latGPRMC[8] == "S":
+    elif direction == "S":
         sign = -1
-    retVal = sign * (60 * int(latGPRMC[0:2]) + float(latGPRMC[2:7]))
-    retVal = float(retVal/60)
-    # print(int(latGPRMC[0:2]))
-    # print(float(latGPRMC[2:7]))
-    print(latGPRMC, "->", retVal)
-    return retVal
+    
+    totalMinutes = sign * (60 * degrees + minutes)
+    totalDegrees = float(totalMinutes/60)
+    # print("GPRMC ", latGPRMC, "degrees", degrees, "minutes", minutes, "direction", direction, "result", totalDegrees)
+    return totalDegrees
 
 def lonGPRMCtoNumericDegrees(lonGPRMC):
     sign = None
-    if lonGPRMC[9] == "E":
+
+    degrees = int(lonGPRMC[0:3])
+    minutes = float(lonGPRMC[3:-2])
+    direction = lonGPRMC.split(",")[1]
+
+    if direction == "E":
         sign = 1
-    elif lonGPRMC[9] == "W":
+    elif direction == "W":
         sign = -1
-    retVal = sign * (60 * int(lonGPRMC[0:3]) + float(lonGPRMC[3:8]))
-    retVal = float(retVal/60)
-    # print(int(latGPRMC[0:2]))
-    # print(float(latGPRMC[2:7]))
-    print(lonGPRMC, "->", retVal)
-    return retVal
+    totalMinutes = sign * (60 * degrees + minutes)
+    totalDegrees = float(totalMinutes/60)
+    # print("GPRMC ", lonGPRMC, "degrees", degrees, "minutes", minutes, "direction", direction, "result", totalDegrees)
+    return totalDegrees
 
 def distAndBearingAtoB(pointAGPRMCCoordinates, pointBGPRMCCoordinates):
+    # print("point A", pointAGPRMCCoordinates)
+    # print("point B", pointBGPRMCCoordinates)
     latADeg = latGPRMCtoNumericDegrees(pointAGPRMCCoordinates["LATITUDE"])
     lonADeg = lonGPRMCtoNumericDegrees(pointAGPRMCCoordinates["LONGITUDE"])
     latBDeg = latGPRMCtoNumericDegrees(pointBGPRMCCoordinates["LATITUDE"])
     lonBDeg = lonGPRMCtoNumericDegrees(pointBGPRMCCoordinates["LONGITUDE"])
+    # print("Invert Problem", latADeg, lonADeg, latBDeg, lonBDeg)
     res = Geodesic.WGS84.Inverse(latADeg, lonADeg, latBDeg, lonBDeg)
     retVal = {}
-    retVal["DIST"] = int(res["s12"])
+    retVal["DISTANCE"] = int(res["s12"])
     bearing = int(res["azi1"])
     if bearing < 0:
         bearing = 360 + bearing
     retVal["BEARING"] = bearing
+    # print(retVal)
     return retVal
 
 # print(distAndBearingAtoB(latAGPRMC, lonAGPRMC, latBGPRMC, lonBGPRMC))

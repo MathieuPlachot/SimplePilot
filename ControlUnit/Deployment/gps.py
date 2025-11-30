@@ -36,7 +36,7 @@ class PilotGPS:
         if "ROUTE" in self.RMCData:
             if self.RMCData["ROUTE"] != "":
                 return self.RMCData["ROUTE"]
-        return "-"
+        return None
     
     def getGPSPosition(self):
         if "LATITUDE" in self.RMCData:
@@ -54,7 +54,7 @@ class PilotGPS:
     def getSpeed(self):
         if "SPEED" in self.RMCData:
             return self.RMCData["SPEED"]
-        return "-"
+        return None
 
     
 
