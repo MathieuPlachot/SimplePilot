@@ -69,43 +69,15 @@ Following commands are defined :
 
 | Command | Description | Parameters | Example |
 |---|---|---|---|
-|REFRESH|Request the control unit to send back statuses|None|{"COMMAND":"REFRESH"}
-
-Command: "REFRESH"
-Parameters: None
-Purpose: request the control unit to send back statuses to the requester
-
-Command: "SET"
-Parameters: None
-Purpose: request the control unit to use the current measured heading as its new setpoint.
-
-Command: "SET_MODE"
-Parameters: MODE
-Purpose: request the control unit to switch its mode to MODE ("AUTO"/"MANU"/"WAYPOINT").
-
-Command: "APPLY_PARAMS"
-Parameters: KP, KI, KD
-Purpose: ordrequester the control unit to apply (without saving) the parameters provided for KP, KD and KI coefficients.
-
-Command: "APPLY_SAVE_PARAMS"
-Parameters: KP, KI, KD
-Purpose: request the control unit to apply and save the parameters provided for KP, KD and KI coefficients.
-
-Command: "INCREASE_SETPOINT"
-Parameters: VALUE
-Purpose: request the control unit to increase the current setpoint by VALUE degrees.
-
-Command: "DECREASE_SETPOINT"
-Parameters: VALUE
-Purpose: request the control unit to decrease the current setpoint by VALUE degrees.
-
-Command: "INCREASE_TILLER"
-Parameters: DURATION
-Purpose: request the control unit to move the tiller towards increasing heading at full duty cycle during DURATION seconds.
-
-Command: "DECREASE_TILLER"
-Parameters: DURATION
-Purpose: request the control unit to move the tiller towards decreasing heading at full duty cycle during DURATION seconds.
+|REFRESH|Request the control unit to send back statuses|None|{"COMMAND":"REFRESH"}|
+|SET|Request the control unit to use the current measured heading as its new setpoint.|None|{"COMMAND":"SET"}|
+|SET_MODE|Request the control unit to switch its mode to MODE ("AUTO"/"MANU"/"WAYPOINT")|MODE (String: "AUTO"/"MANU"/"WAYPOINT")|{"COMMAND":"SET_MODE","MODE":"AUTO"}|
+|APPLY_PARAMS|Request the control unit to apply (without saving) the provided parameters|KP (Float), KI (Float), KD (FLoat)|{"COMMAND":"APPLY_PARAMS","KP":2,"KI":5.7,"KD":32.5}|
+|APPLY_PARAMS|Request the control unit to apply and save the provided parameters|KP (Float), KI (Float), KD (FLoat)|{"COMMAND":"APPLY_SAVE_PARAMS","KP":2,"KI":5.7,"KD":32.5}|
+|INCREASE_SETPOINT|Request the control unit to increase the current setpoint by VALUE degrees|VALUE (Float)|{"COMMAND":"INCREASE_SETPOINT", "VALUE":12.7}|
+|INCREASE_SETPOINT|Request the control unit to decrease the current setpoint by VALUE degrees|VALUE (Float)|{"COMMAND":"DECREASE_SETPOINT", "VALUE":12.7}|
+|INCREASE_TILLER|Request the control unit to move the tiller towards increasing heading at full duty cycle during DURATION seconds|DURATION (Float)|{"COMMAND":"INCREASE_TILLER","DURATION":0.5}|
+|DECREASE_TILLER|Request the control unit to move the tiller towards decreasing heading at full duty cycle during DURATION seconds|DURATION (Float)|{"COMMAND":"DECREASE_TILLER","DURATION":0.5}
 
 The statuses from the control unit application to the user interface application follow the below format :
 
