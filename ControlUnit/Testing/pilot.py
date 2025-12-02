@@ -6,6 +6,8 @@ from pathlib import Path
 import time
 import json
 import sys
+import numpy as np
+
 
 class Pilot:
 
@@ -142,57 +144,16 @@ class Pilot:
 
     def interpolateCoeffWithSpeed(self, coeffName):
 
-        maxBelow = None
-        maxBelowRank = None
-        minAbove = None
-        minAboveRank = None
-        closest = None
-        closestRank = None
-
-        settingRank = 0
+        speeds = []
+        coeffValues = []
 
         for setting in self.currentParameters["PID_SETTINGS"]:
-            
-            settingSpeed = setting["SPEED"]
-
-            if settingSpeed == self.currentSpeed:
-                return setting[coeffName]
-            
-            if maxBelow == None:
-                if settingSpeed < self.currentSpeed:
-                    maxBelow = settingSpeed
-                    maxBelowRank = settingRank
-            else:
-                if settingSpeed > maxBelow and settingSpeed < self.currentSpeed:
-                    maxBelow = settingSpeed
-                    maxBelowRank = settingRank
-            
-            if minAbove == None:
-                if settingSpeed > self.currentSpeed:
-                    minAbove = settingSpeed
-                    minAboveRank = settingRank
-            else:
-                if settingSpeed < minAbove and settingSpeed > self.currentSpeed:
-                    minAbove = settingSpeed
-                    minAboveRank = settingRank
-            
-            if closest == None:
-                closest = settingSpeed
-                closestRank = settingRank
-            else:
-                if abs(settingSpeed - self.currentSpeed) < abs(closest - self.currentSpeed):
-                    closest = settingSpeed
-                    closestRank = settingRank
-            
-            settingRank+=1
-
-        if maxBelow == None or minAbove == None:
-            return self.currentParameters["PID_SETTINGS"][closestRank][coeffName]
-        else:
-            upperSpeedCoeff = self.currentParameters["PID_SETTINGS"][minAboveRank][coeffName]
-            lowerSpeedCoeff = self.currentParameters["PID_SETTINGS"][maxBelowRank][coeffName]
-            result = ((self.currentSpeed - maxBelow) / (minAbove - maxBelow)) * (upperSpeedCoeff - lowerSpeedCoeff) + lowerSpeedCoeff
-            return result
+            speeds.append(setting["SPEED"])
+            coeffValues.append(setting[coeffName])
+        
+        coeffValue = float(np.interp(self.currentSpeed, speeds, coeffValues))
+        print(coeffName, coeffValue)
+        return coeffValue
 
     def commandFromError(self):
         result = {}
