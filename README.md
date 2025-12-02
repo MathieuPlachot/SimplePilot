@@ -69,15 +69,15 @@ Following commands are defined :
 
 | Command | Description | Parameters | Example |
 |---|---|---|---|
-|REFRESH|Request the control unit to send back statuses|None|{"COMMAND":"REFRESH"}|
-|SET|Request the control unit to use the current measured heading as its new setpoint.|None|{"COMMAND":"SET"}|
-|SET_MODE|Request the control unit to switch its mode to MODE ("AUTO"/"MANU"/"WAYPOINT")|MODE (String: "AUTO"/"MANU"/"WAYPOINT")|{"COMMAND":"SET_MODE","MODE":"AUTO"}|
-|APPLY_PARAMS|Request the control unit to apply (without saving) the provided parameters|KP (Float), KI (Float), KD (FLoat)|{"COMMAND":"APPLY_PARAMS","KP":2,"KI":5.7,"KD":32.5}|
-|APPLY_PARAMS|Request the control unit to apply and save the provided parameters|KP (Float), KI (Float), KD (FLoat)|{"COMMAND":"APPLY_SAVE_PARAMS","KP":2,"KI":5.7,"KD":32.5}|
-|INCREASE_SETPOINT|Request the control unit to increase the current setpoint by VALUE degrees|VALUE (Float)|{"COMMAND":"INCREASE_SETPOINT", "VALUE":12.7}|
-|INCREASE_SETPOINT|Request the control unit to decrease the current setpoint by VALUE degrees|VALUE (Float)|{"COMMAND":"DECREASE_SETPOINT", "VALUE":12.7}|
-|INCREASE_TILLER|Request the control unit to move the tiller towards increasing heading at full duty cycle during DURATION seconds|DURATION (Float)|{"COMMAND":"INCREASE_TILLER","DURATION":0.5}|
-|DECREASE_TILLER|Request the control unit to move the tiller towards decreasing heading at full duty cycle during DURATION seconds|DURATION (Float)|{"COMMAND":"DECREASE_TILLER","DURATION":0.5}
+|REFRESH|Send back statuses|None|{"COMMAND":"REFRESH"}|
+|SET|Use the current measured heading as its new setpoint.|None|{"COMMAND":"SET"}|
+|SET_MODE|Switch mode to MODE|MODE (String: "AUTO"/"MANU"/"WAYPOINT")|{"COMMAND":"SET_MODE","MODE":"AUTO"}|
+|APPLY_PARAMS|Apply (without saving) the provided parameters|KP (Float), KI (Float), KD (FLoat)|{"COMMAND":"APPLY_PARAMS","KP":2,"KI":5.7,"KD":32.5}|
+|APPLY_PARAMS|Apply and save the provided parameters|KP (Float), KI (Float), KD (FLoat)|{"COMMAND":"APPLY_SAVE_PARAMS","KP":2,"KI":5.7,"KD":32.5}|
+|INCREASE_SETPOINT|Increase the current setpoint by VALUE degrees|VALUE (Float)|{"COMMAND":"INCREASE_SETPOINT", "VALUE":12.7}|
+|INCREASE_SETPOINT|Decrease the current setpoint by VALUE degrees|VALUE (Float)|{"COMMAND":"DECREASE_SETPOINT", "VALUE":12.7}|
+|INCREASE_TILLER|Move the tiller in the direction of increasing heading at full duty cycle during DURATION seconds|DURATION (Float)|{"COMMAND":"INCREASE_TILLER","DURATION":0.5}|
+|DECREASE_TILLER|Move the tiller in the direction of decreasing heading at full duty cycle during DURATION seconds|DURATION (Float)|{"COMMAND":"DECREASE_TILLER","DURATION":0.5}
 
 The statuses from the control unit application to the user interface application follow the below format :
 
