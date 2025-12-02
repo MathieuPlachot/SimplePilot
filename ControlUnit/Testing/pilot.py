@@ -235,9 +235,9 @@ class Pilot:
         status["GPSSTATE"] = self.myGPS.getStatus()
         status["MODE"] = self.mode
         status["SPEED"] = self.myGPS.getSpeed()
-        status["KP"] = self.currentParameters["KP"]
-        status["KD"] = self.currentParameters["KD"]
-        status["KI"] = self.currentParameters["KI"]
+        status["KP"] = 0 # self.currentParameters["KP"]
+        status["KD"] = 1 # self.currentParameters["KD"]
+        status["KI"] = 2 # self.currentParameters["KI"]
         return status
     
     def routeRankFromRouteName(self, routeName):
