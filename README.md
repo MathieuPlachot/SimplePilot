@@ -13,10 +13,10 @@ It is written in python for the control unit part, and in Flutter for the user i
 ## Manual Mode (MANU)
 The manual mode allows to directly control the tiller through the User Interface application by imcrements.
 
-# Automatic Mode (AUTO)
+## Automatic Mode (AUTO)
 The automatic mode lets the boat follow a GPS heading (setPoint) through PID control of the tiller speed and direction (configurable coefficients)
 
-# Waypoint Mode (WPT)
+## Waypoint Mode (WPT)
 The Waypoint mode lets the boat follow a path defined by successive GPS waypoints (to be configured beforehand). The switching from the current waypoint to the next is made when the current waypoint is less than a configurable distance from the boat position.
 
 
@@ -53,10 +53,8 @@ Yet to be written
 To launch the control unit application, run the following command from the RPi folder:
 
 ```
-python3 pilot.py Kp Kd Ki
+python3 pilot.py
 ```
-
-Kp, Kd, Ki being the PID coefficients to be used by the application (for example 1 10 0)
 
 # Interfaces
 ## Control Unit <-> User Interface
