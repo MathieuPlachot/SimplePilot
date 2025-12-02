@@ -11,7 +11,7 @@ It is written in python for the control unit part, and in Flutter for the user i
 # Features
 
 ## Manual Mode (MANU)
-The manual mode allows to directly control the tiller through the User Interface application by imcrements.
+The manual mode allows to directly control the tiller through the User Interface application by increments.
 
 ## Automatic Mode (AUTO)
 The automatic mode lets the boat follow a GPS heading (setPoint) through PID control of the tiller speed and direction (configurable coefficients)
@@ -66,6 +66,10 @@ The general structure of commands from the user interface to the control unit is
 {COMMAND:"cmd_name", PARAMETER_1:"param1_value", PARAMETER_2 ...}
 
 Following commands are defined :
+
+| Command | Description | Parameters | Example |
+|---|---|---|---|
+|REFRESH|Request the control unit to send back statuses|None|{"COMMAND":"REFRESH"}
 
 Command: "REFRESH"
 Parameters: None
