@@ -125,16 +125,16 @@ class Pilot:
                 return
             
             elif commandDict["COMMAND"] == UDPHandler.APPLY_PARAMS:
-                self.currentParameters["KP"] = commandDict["KP"]
-                self.currentParameters["KI"] = commandDict["KI"]
-                self.currentParameters["KD"] = commandDict["KD"]
+                # self.currentParameters["KP"] = commandDict["KP"]
+                # self.currentParameters["KI"] = commandDict["KI"]
+                # self.currentParameters["KD"] = commandDict["KD"]
                 return
             
             elif commandDict["COMMAND"] == UDPHandler.APPLY_SAVE_PARAMS:
-                self.currentParameters["KP"] = commandDict["KP"]
-                self.currentParameters["KI"] = commandDict["KI"]
-                self.currentParameters["KD"] = commandDict["KD"]
-                self.saveParamsToConf()
+                # self.currentParameters["KP"] = commandDict["KP"]
+                # self.currentParameters["KI"] = commandDict["KI"]
+                # self.currentParameters["KD"] = commandDict["KD"]
+                # self.saveParamsToConf()
                 return
 
         except Exception as e:
