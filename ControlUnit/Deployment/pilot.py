@@ -36,7 +36,7 @@ class Pilot:
 
     def saveParamsToConf(self):
         scriptDir = Path(__file__).parent
-        confPath = scriptDir / ".pilotconf.txt"
+        confPath = scriptDir / ".pilotconf.json"
         confFile = open(confPath, "w")
         confFile.write(json.dumps(self.currentParameters, indent = 4))
         confFile.close()
@@ -44,7 +44,7 @@ class Pilot:
     
     def loadParamsFromConf(self):
         scriptDir = Path(__file__).parent
-        confPath = scriptDir / ".pilotconf.txt"        
+        confPath = scriptDir / ".pilotconf.json"        
         confFile = open(confPath, "r")
         jsonString = confFile.read()
         confFile.close()
