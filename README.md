@@ -186,8 +186,8 @@ Following commands are defined :
 |REFRESH|Send back statuses|None|{"COMMAND":"REFRESH"}|
 |SET|Use the current measured heading as its new setpoint.|None|{"COMMAND":"SET"}|
 |SET_MODE|Switch mode to MODE|MODE (String: "AUTO"/"MANU"/"WAYPOINT")|{"COMMAND":"SET_MODE","MODE":"AUTO"}|
-|APPLY_PARAMS|Apply (without saving) the provided parameters|KP (Float), KI (Float), KD (FLoat)|{"COMMAND":"APPLY_PARAMS","KP":2,"KI":5.7,"KD":32.5}|
-|APPLY_SAVE_PARAMS|Apply and save the provided parameters|KP (Float), KI (Float), KD (FLoat)|{"COMMAND":"APPLY_SAVE_PARAMS","KP":2,"KI":5.7,"KD":32.5}|
+|APPLY_PARAMS|Apply (without saving) the parameters provided as a JSON string complying with the schema provided in the Configuration/ControlUnit section of this README.|PARAMS (String)|{"COMMAND":"APPLY_PARAMS","PARAMS":"{...}"|
+|APPLY_SAVE_PARAMS|Apply and save the parameters provided as a JSON string complying with the schema provided in the Configuration/ControlUnit section of this README.|PARAMS (String)|{"COMMAND":"APPLY_PARAMS","PARAMS":"{...}"|
 |INCREASE_SETPOINT|Increase the current setpoint by VALUE degrees|VALUE (Float)|{"COMMAND":"INCREASE_SETPOINT", "VALUE":12.7}|
 |DECREASE_SETPOINT|Decrease the current setpoint by VALUE degrees|VALUE (Float)|{"COMMAND":"DECREASE_SETPOINT", "VALUE":12.7}|
 |INCREASE_TILLER|Move the tiller in the direction of increasing heading at full duty cycle during DURATION seconds|DURATION (Float)|{"COMMAND":"INCREASE_TILLER","DURATION":0.5}|
