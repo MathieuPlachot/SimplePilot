@@ -50,7 +50,69 @@ Yet to be written
 # Configuration
 ## ControlUnit
 
-The ControlUnit configuration file consists in a JSON with following format :
+The ControlUnit configuration file consists in a JSON with following schema :
+
+```
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Navigation Control Configuration",
+  "type": "object",
+  "properties": {
+    "PID_SETTINGS": {
+      "type": "array",
+      "description": "List of PID controller settings for different speeds",
+      "items": {
+        "type": "object",
+        "properties": {
+          "SPEED": { "type": "number" },
+          "KP": { "type": "number" },
+          "KI": { "type": "number" },
+          "KD": { "type": "number" }
+        },
+        "required": ["SPEED", "KP", "KI", "KD"]
+      }
+    },
+    "WAYPOINT_SWITCHING_THRESHOLD": {
+      "type": "number",
+      "description": "Distance threshold for switching to the next waypoint"
+    },
+    "ROUTES": {
+      "type": "array",
+      "description": "List of navigation routes",
+      "items": {
+        "type": "object",
+        "properties": {
+          "NAME": { "type": "string" },
+          "WAYPOINTS": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "NAME": { "type": "string" },
+                "LATITUDE": {
+                  "type": "string",
+                  "pattern": "^[0-9]{4,}\\.[0-9]+,[NS]$",
+                  "description": "Latitude in degrees/minutes format with hemisphere (N/S)"
+                },
+                "LONGITUDE": {
+                  "type": "string",
+                  "pattern": "^[0-9]{5,}\\.[0-9]+,[EW]$",
+                  "description": "Longitude in degrees/minutes format with hemisphere (E/W)"
+                }
+              },
+              "required": ["NAME", "LATITUDE", "LONGITUDE"]
+            }
+          }
+        },
+        "required": ["NAME", "WAYPOINTS"]
+      }
+    }
+  },
+  "required": ["PID_SETTINGS", "WAYPOINT_SWITCHING_THRESHOLD", "ROUTES"]
+}
+```
+
+Here is a sample configuration :
 
 ```
 {
@@ -92,21 +154,6 @@ The ControlUnit configuration file consists in a JSON with following format :
                     "NAME": "ROUTE1_WPT4",
                     "LATITUDE": "4734.5588,N",
                     "LONGITUDE": "00216.6686,W"
-                }
-            ]
-        },
-        {
-            "NAME": "ROUTE2",
-            "WAYPOINTS": [
-                {
-                    "NAME": "ROUTE2_WPT1",
-                    "LATITUDE": "0000.00,N",
-                    "LONGITUDE": "00000.00,E"
-                },
-                {
-                    "NAME": "ROUTE2_WPT2",
-                    "LATITUDE": "0000.00,N",
-                    "LONGITUDE": "00000.00,E"
                 }
             ]
         }
