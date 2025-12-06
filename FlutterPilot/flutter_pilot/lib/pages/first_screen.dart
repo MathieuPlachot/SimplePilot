@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:flutter_pilot/services/udp_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -11,64 +10,29 @@ class FirstScreen extends StatefulWidget {
 }
 
 class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
-  bool _isInForeground = true;
-  late final UDPHandler myUDPHandler;
+  late final UDPHandler udpHandler;
   final ButtonStyle squareButtonStyle = ElevatedButton.styleFrom(
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     padding: EdgeInsets.zero,
   );
 
   List<String> statusLabels1 = ["MODE:", "GPS:", "LNK:"];
-  List<String> statusValues1 = ["UNK", "UNK", "UNK"];
   List<String> statusLabels2 = ["SET:", "CURRENT:", "SPEED:"];
-  List<String> statusValues2 = ["UNK", "UNK", "UNK"];
 
   @override
   void initState() {
     super.initState();
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    myUDPHandler = Provider.of<UDPHandler>(context);
-    myUDPHandler.setUpdateCallback(updateStatus);
-    myUDPHandler.listenIncomingUDP();
-    myUDPHandler.requestPeriodicRefresh();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    _isInForeground = state == AppLifecycleState.resumed;
-    myUDPHandler.setForeground(_isInForeground);
-    if (_isInForeground) {
-      myUDPHandler.requestPeriodicRefresh();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      udpHandler = context.read<UDPHandler>();
+    });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  void updateStatus(String message) {
-    setState(() {
-      print(message);
-      final pilotStatusJson = json.decode(message);
-      statusValues1 = [
-        pilotStatusJson["MODE"],
-        pilotStatusJson["GPSSTATE"],
-        pilotStatusJson["LNK"].toString(),
-      ];
-      statusValues2 = [
-        pilotStatusJson["SETPOINT"].toString(),
-        pilotStatusJson["CURRENT"].toString(),
-        pilotStatusJson["SPEED"].toString(),
-      ];
-    });
   }
 
   Widget paramAndValueText(
@@ -123,7 +87,7 @@ class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
 
   void sendSetHeadingCommand() {
     final Map<String, String> commandJson = {"COMMAND": "SET"};
-    myUDPHandler.sendCommand(commandJson);
+    udpHandler.sendCommand(commandJson);
   }
 
   Widget buildButtonRowFromButtons(List<Widget> buttons) {
@@ -148,7 +112,7 @@ class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
   Widget pilotCommandButton(String label, double fontSize) {
     return ElevatedButton(
       style: squareButtonStyle,
-      onPressed: () => myUDPHandler.sendUDPMessage(label),
+      onPressed: () => udpHandler.sendUDPMessage(label),
       child: Text(
         label,
         softWrap: false,
@@ -181,11 +145,27 @@ class _FirstScreenState extends State<FirstScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final json = context.watch<UDPHandler>().data;
+    List<String> values1;
+    List<String> values2;
+
+    if (json == null) {
+      values1 = ["UNK", "UNK", "UNK"];
+      values2 = ["UNK", "UNK", "UNK"];
+    } else {
+      values1 = [json["MODE"], json["GPSSTATE"], json["LNK"].toString()];
+      values2 = [
+        json["SETPOINT"].toString(),
+        json["CURRENT"].toString(),
+        json["SPEED"].toString(),
+      ];
+    }
+
     return Scaffold(
       body: Column(
         children: [
-          buildTextRow(statusLabels1, statusValues1),
-          buildTextRow(statusLabels2, statusValues2),
+          buildTextRow(statusLabels1, values1),
+          buildTextRow(statusLabels2, values2),
           buildButtonRowFromLabels(['AUTO', 'MANU']),
           buildButtonRowFromButtons([setHeadingButton(20)]),
           buildButtonRowFromLabels(['<<<', '>>>']),

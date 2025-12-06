@@ -1,86 +1,130 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 
-// notifyListeners(); // notify widgets to rebuild
-
 class UDPHandler extends ChangeNotifier {
-  bool _foreground = true;
   String _serverIpAddress = '127.0.0.1'; // '10.3.141.1';
   int _serverPort = 1234;
   int _pollingRate = 500; // every 500ms
+  Timer? _timer;
+  RawDatagramSocket? _incomingSocket;
+  RawDatagramSocket? _outgoingSocket;
+  Map<String, dynamic>? _data;
+  Map<String, dynamic>? get data => _data;
 
-  Function(String)? onUpdate;
-
-  void setForeground(bool value) {
-    _foreground = value;
+  UDPHandler() {
+    openIncomingSocket();
+    openOutgoingSocket();
   }
 
-  void setUpdateCallback(Function(String) callback) {
-    onUpdate = callback;
+  void startPolling() {
+    print("Started polling");
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(milliseconds: _pollingRate), (_) {
+      final Map<String, String> commandJson = {"COMMAND": "REFRESH"};
+      sendCommand(commandJson);
+    });
   }
 
-  Future<void> requestPeriodicRefresh() async {
-    RawDatagramSocket socket = await RawDatagramSocket.bind(
-      InternetAddress.anyIPv4,
-      0,
-    );
-    String message = '\x06';
-    List<int> data = message.codeUnits;
-    InternetAddress server = InternetAddress(_serverIpAddress);
+  void stopPolling() {
+    _timer?.cancel();
+    _timer = null;
+    print("Stopped polling");
+  }
 
-    while (_foreground) {
-      socket.send(data, server, _serverPort);
-      await Future.delayed(Duration(milliseconds: _pollingRate));
+  @override
+  void dispose() {
+    _timer?.cancel();
+    closeOutgoingSocket();
+    closeIncomingSocket();
+    super.dispose();
+  }
+
+  void closeIncomingSocket() {
+    if (_incomingSocket != null) {
+      print("Closing incoming UDP socket");
+      _incomingSocket!.close();
+      _incomingSocket = null;
     }
   }
 
-  Future<void> listenIncomingUDP() async {
-    RawDatagramSocket socket = await RawDatagramSocket.bind(
+  void closeOutgoingSocket() {
+    if (_outgoingSocket != null) {
+      print("Closing outgoing UDP socket");
+      _outgoingSocket!.close();
+      _outgoingSocket = null;
+    }
+  }
+
+  Future<void> openOutgoingSocket() async {
+    // Avoid binding twice
+    if (_outgoingSocket != null) {
+      print('Outgoing UDP already listening');
+      return;
+    }
+
+    _outgoingSocket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
+  }
+
+  Future<void> openIncomingSocket() async {
+    // Avoid binding twice
+    if (_incomingSocket != null) {
+      print('Incoming UDP already listening');
+      return;
+    }
+
+    _incomingSocket = await RawDatagramSocket.bind(
       InternetAddress.anyIPv4,
       5678,
     );
-    socket.listen((RawSocketEvent event) {
+
+    listenIncomingUDP();
+  }
+
+  Future<void> listenIncomingUDP() async {
+    print('listenIncomingUDP');
+
+    _incomingSocket!.listen((RawSocketEvent event) {
       if (event == RawSocketEvent.read) {
-        Datagram? datagram = socket.receive();
+        Datagram? datagram = _incomingSocket!.receive();
         if (datagram != null) {
           String message = String.fromCharCodes(datagram.data);
-          print(message);
-          if (onUpdate != null) {
-            onUpdate!(message);
-          }
+          print('Received incoming UDP: $message');
+          _data = json.decode(message);
+          notifyListeners(); // notify widgets to rebuild
         }
       }
     });
   }
 
-  Future<void> sendUDPMessage(String label) async {
-    Map<String, String> messages = {
-      'AUTO': '\x01',
-      'MANU': '\x02',
-      'SET HEADING': '\x05',
-      '<<<': '\x03',
-      '>>>': '\x04',
+  Future<void> sendUDPMessage(String key) async {
+    Map<String, Map<String, dynamic>> commands = {
+      'AUTO': {'COMMAND': 'SET_MODE', 'MODE': 'AUTO'},
+      'MANU': {'COMMAND': 'SET_MODE', 'MODE': 'MANU'},
+      '<<<': {
+        "AUTO": {'COMMAND': 'DECREASE_SETPOINT', 'VALUE': 10},
+        "MANU": {'COMMAND': 'DECREASE_TILLER', 'VALUE': 0.5},
+      },
+      '>>>': {
+        "AUTO": {'COMMAND': 'INCREASE_SETPOINT', 'VALUE': 10},
+        "MANU": {'COMMAND': 'INCREASE_TILLER', 'VALUE': 0.5},
+      },
     };
 
-    String message = messages[label] ?? '';
-    RawDatagramSocket socket = await RawDatagramSocket.bind(
-      InternetAddress.anyIPv4,
-      0,
-    );
-    List<int> data = message.codeUnits;
-    InternetAddress server = InternetAddress(_serverIpAddress);
+    String currentMode = _data != null ? _data!["MODE"] : "";
+    print("Current mode: $currentMode");
 
-    socket.send(data, server, _serverPort);
+    Map<String, dynamic> command = commands[key]?['COMMAND'] != null
+        ? commands[key]
+        : commands[key]?[currentMode];
+
+    sendCommand(command);
   }
 
   Future<void> sendCommand(Map<String, dynamic> commandJson) async {
-    RawDatagramSocket socket = await RawDatagramSocket.bind(
-      InternetAddress.anyIPv4,
-      0,
-    );
     InternetAddress server = InternetAddress(_serverIpAddress);
     final List<int> data = json.encode(commandJson).codeUnits;
-    socket.send(data, server, _serverPort);
+    _outgoingSocket!.send(data, server, _serverPort);
   }
 }
