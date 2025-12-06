@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pilot/pages/about_page.dart';
+import 'package:flutter_pilot/services/udp_handler.dart';
+import 'package:provider/provider.dart';
 import '../widgets/bottom_navbar.dart';
 import 'home_page.dart';
 import 'chart_page.dart';
@@ -10,7 +12,7 @@ class HomeShell extends StatefulWidget {
   State<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends State<HomeShell> {
+class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   int _currentIndex = 1; // default Home tab
   late final PageController _pageController;
 
@@ -20,12 +22,35 @@ class _HomeShellState extends State<HomeShell> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
+
+    WidgetsBinding.instance.addObserver(this);
+
+    // Start polling immediately if app starts in foreground
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<UDPHandler>().startPolling();
+    });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    context.read<UDPHandler>().stopPolling();
     _pageController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final udpHandler = context.read<UDPHandler>();
+
+    if (state == AppLifecycleState.resumed) {
+      udpHandler.startPolling();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      udpHandler.stopPolling();
+    }
   }
 
   int _drawerSelectedIndex() {

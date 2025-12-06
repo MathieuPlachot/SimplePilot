@@ -15,7 +15,6 @@ import 'package:provider/provider.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     UDPHandler handler = UDPHandler();
-    handler.setForeground(false);
 
     await tester.pumpWidget(
       ChangeNotifierProvider<UDPHandler>(

@@ -29,3 +29,6 @@ class SimplePilot extends StatelessWidget {
 // Send and display Kp,Ki,Kd, IP Addr
 // Improve info display
 // Continuous movement in manual mode
+// * Rework UI to allow the definition of coefficients per speed
+// * Align with interface specification after spec rework
+// * Rework first screen UI to add waypoint mode (mode selector, current waypoint info, route selection  ...)
