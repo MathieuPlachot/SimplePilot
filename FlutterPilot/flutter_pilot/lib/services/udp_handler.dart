@@ -104,11 +104,11 @@ class UDPHandler extends ChangeNotifier {
       'MANU': {'COMMAND': 'SET_MODE', 'MODE': 'MANU'},
       '<<<': {
         "AUTO": {'COMMAND': 'DECREASE_SETPOINT', 'VALUE': 10},
-        "MANU": {'COMMAND': 'DECREASE_TILLER', 'VALUE': 0.5},
+        "MANU": {'COMMAND': 'DECREASE_TILLER', 'DURATION': 0.5},
       },
       '>>>': {
         "AUTO": {'COMMAND': 'INCREASE_SETPOINT', 'VALUE': 10},
-        "MANU": {'COMMAND': 'INCREASE_TILLER', 'VALUE': 0.5},
+        "MANU": {'COMMAND': 'INCREASE_TILLER', 'DURATION': 0.5},
       },
     };
 
