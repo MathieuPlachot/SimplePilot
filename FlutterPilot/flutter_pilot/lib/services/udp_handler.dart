@@ -5,17 +5,63 @@ import 'package:flutter/material.dart';
 
 class UDPHandler extends ChangeNotifier {
   String _serverIpAddress = '127.0.0.1'; // '10.3.141.1';
-  int _serverPort = 1234;
+  int _serverPort = 50002;
+  int _listenPort = 0;
   int _pollingRate = 500; // every 500ms
   Timer? _timer;
-  RawDatagramSocket? _incomingSocket;
-  RawDatagramSocket? _outgoingSocket;
+  RawDatagramSocket? _socket;
   Map<String, dynamic>? _data;
   Map<String, dynamic>? get data => _data;
 
   UDPHandler() {
-    openIncomingSocket();
-    openOutgoingSocket();
+    openSocket();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    closeSocket();
+    super.dispose();
+  }
+
+  Future<void> openSocket() async {
+    // Avoid binding twice
+    if (_socket != null) {
+      print('UDP already listening');
+      return;
+    }
+
+    _socket = await RawDatagramSocket.bind(
+      InternetAddress.anyIPv4,
+      _listenPort,
+    );
+    print('UDP socket listening on port $_listenPort');
+
+    listenIncomingUDP();
+  }
+
+  Future<void> listenIncomingUDP() async {
+    print('listenIncomingUDP');
+
+    _socket!.listen((RawSocketEvent event) {
+      if (event == RawSocketEvent.read) {
+        Datagram? datagram = _socket!.receive();
+        if (datagram != null) {
+          String message = String.fromCharCodes(datagram.data);
+          print('Received incoming UDP: $message');
+          _data = json.decode(message);
+          notifyListeners(); // notify widgets to rebuild
+        }
+      }
+    });
+  }
+
+  void closeSocket() {
+    if (_socket != null) {
+      print("Closing UDP socket");
+      _socket!.close();
+      _socket = null;
+    }
   }
 
   void startPolling() {
@@ -31,71 +77,6 @@ class UDPHandler extends ChangeNotifier {
     _timer?.cancel();
     _timer = null;
     print("Stopped polling");
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    closeOutgoingSocket();
-    closeIncomingSocket();
-    super.dispose();
-  }
-
-  void closeIncomingSocket() {
-    if (_incomingSocket != null) {
-      print("Closing incoming UDP socket");
-      _incomingSocket!.close();
-      _incomingSocket = null;
-    }
-  }
-
-  void closeOutgoingSocket() {
-    if (_outgoingSocket != null) {
-      print("Closing outgoing UDP socket");
-      _outgoingSocket!.close();
-      _outgoingSocket = null;
-    }
-  }
-
-  Future<void> openOutgoingSocket() async {
-    // Avoid binding twice
-    if (_outgoingSocket != null) {
-      print('Outgoing UDP already listening');
-      return;
-    }
-
-    _outgoingSocket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
-  }
-
-  Future<void> openIncomingSocket() async {
-    // Avoid binding twice
-    if (_incomingSocket != null) {
-      print('Incoming UDP already listening');
-      return;
-    }
-
-    _incomingSocket = await RawDatagramSocket.bind(
-      InternetAddress.anyIPv4,
-      5678,
-    );
-
-    listenIncomingUDP();
-  }
-
-  Future<void> listenIncomingUDP() async {
-    print('listenIncomingUDP');
-
-    _incomingSocket!.listen((RawSocketEvent event) {
-      if (event == RawSocketEvent.read) {
-        Datagram? datagram = _incomingSocket!.receive();
-        if (datagram != null) {
-          String message = String.fromCharCodes(datagram.data);
-          print('Received incoming UDP: $message');
-          _data = json.decode(message);
-          notifyListeners(); // notify widgets to rebuild
-        }
-      }
-    });
   }
 
   Future<void> sendUDPMessage(String key) async {
@@ -123,8 +104,13 @@ class UDPHandler extends ChangeNotifier {
   }
 
   Future<void> sendCommand(Map<String, dynamic> commandJson) async {
+    if (_socket == null) {
+      print('Socket not initialized');
+      return;
+    }
+
     InternetAddress server = InternetAddress(_serverIpAddress);
     final List<int> data = json.encode(commandJson).codeUnits;
-    _outgoingSocket!.send(data, server, _serverPort);
+    _socket!.send(data, server, _serverPort);
   }
 }
