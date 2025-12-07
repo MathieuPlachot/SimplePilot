@@ -37,8 +37,6 @@ class UDPHandler:
         self.lastCommand = None
         self.lastClientAddress = None
 
-        self.heartBeat = 0
-
     def getCommand(self):
         command = self.lastCommand
         self.lastCommand = None
@@ -53,14 +51,6 @@ class UDPHandler:
 
     def transmitStatus(self, pilotStatus):
         print("[UDPHandler] Transmitting status to", self.lastClientAddress)
-
-        pilotStatus["LNK"] = self.heartBeat
-
-        if self.heartBeat == 0:
-            self.heartBeat = 1
-        else:
-            self.heartBeat = 0
-        
         pilotStatusJsonString = json.dumps(pilotStatus)
         pilotStatusJsonStringBytes = pilotStatusJsonString.encode('utf-8')
         self.srvSock.sendto(pilotStatusJsonStringBytes, self.lastClientAddress)
