@@ -174,7 +174,7 @@ python3 pilot.py
 ## Control Unit <-> User Interface Application
 ### Transport Layer
 
-The interface between the Control Unit and the User Interface Application relies on UDP. Both ends listen on UDP port 50002.
+The interface between the Control Unit and the User Interface Application relies on UDP. The ControlUnit listens on port 50002 and replies on the request source port.
 
 ### Commands & Statuses
 
