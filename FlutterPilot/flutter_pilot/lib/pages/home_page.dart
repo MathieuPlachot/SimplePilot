@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pilot/services/udp_handler.dart';
+import 'package:flutter_pilot/widgets/connection_status.dart';
+import 'package:flutter_pilot/widgets/gps_status.dart';
+import 'package:flutter_pilot/widgets/readonly_floating_input.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,9 +19,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     padding: EdgeInsets.zero,
   );
 
-  List<String> statusLabels1 = ["MODE:", "GPS:", "LNK:"];
-  List<String> statusLabels2 = ["SET:", "CURRENT:", "SPEED:"];
-
   @override
   void initState() {
     super.initState();
@@ -33,44 +33,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  Widget paramAndValueText(
-    String paramName,
-    String paramValue,
-    double fontSize,
-  ) {
-    return Text(
-      '$paramName\n$paramValue',
-      style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-      textAlign: TextAlign.center,
-    );
-  }
-
-  Widget buildTextRow(List<String> labels, List<String> values) {
-    return Expanded(
-      child: Row(
-        children: List.generate(labels.length, (index) {
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  double fontSize = constraints.maxHeight * 0.18;
-                  return SizedBox.expand(
-                    child: paramAndValueText(
-                      labels[index],
-                      values[index],
-                      fontSize,
-                    ),
-                  );
-                },
-              ),
-            ),
-          );
-        }),
-      ),
-    );
   }
 
   Widget setHeadingButton(double fontSize) {
@@ -145,27 +107,60 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final json = context.watch<UDPHandler>().data;
-    List<String> values1;
-    List<String> values2;
-
-    if (json == null) {
-      values1 = ["-", "-", "-"];
-      values2 = ["-", "-", "-"];
-    } else {
-      values1 = [json["MODE"], json["GPSSTATE"], json["LNK"].toString()];
-      values2 = [
-        json["SETPOINT"].toString(),
-        json["CURRENT"].toString(),
-        json["SPEED"].toString(),
-      ];
-    }
-
     return Scaffold(
       body: Column(
         children: [
-          buildTextRow(statusLabels1, values1),
-          buildTextRow(statusLabels2, values2),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              SizedBox(width: 16),
+              Expanded(
+                child: ReadonlyFloatingInput(label: "Mode", dataKey: "MODE"),
+              ),
+              SizedBox(width: 16),
+              Expanded(child: ConnectionStatusWidget()),
+              SizedBox(width: 16),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              SizedBox(width: 16),
+              Expanded(child: GpsStatusWidget()),
+              SizedBox(width: 16),
+              Expanded(
+                child: ReadonlyFloatingInput(
+                  label: "Speed",
+                  dataKey: "SPEED",
+                  suffix: " kts",
+                ),
+              ),
+              SizedBox(width: 16),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              SizedBox(width: 16),
+              Expanded(
+                child: ReadonlyFloatingInput(
+                  label: "Set",
+                  dataKey: "SETPOINT",
+                  suffix: "°",
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: ReadonlyFloatingInput(
+                  label: "Current",
+                  dataKey: "CURRENT",
+                  suffix: "°",
+                ),
+              ),
+              SizedBox(width: 16),
+            ],
+          ),
+          SizedBox(height: 16),
           buildButtonRowFromLabels(['AUTO', 'MANU']),
           buildButtonRowFromButtons([setHeadingButton(20)]),
           buildButtonRowFromLabels(['<<<', '>>>']),

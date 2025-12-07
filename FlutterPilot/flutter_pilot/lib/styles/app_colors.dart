@@ -8,4 +8,7 @@ class AppColors {
   static const Color navbarBackground = Color(0xFF1A222F);
   static const Color navbarSelected = primary;
   static const Color navbarUnselected = textDark;
+  static const Color success = Color(0xFF016D1D);
+  static const Color danger = Colors.red;
+  static const Color muted = Color(0xFF79747E);
 }

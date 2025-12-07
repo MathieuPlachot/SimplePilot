@@ -2,15 +2,21 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_pilot/models/connection_status.model.dart';
 
 class UDPHandler extends ChangeNotifier {
   String _serverIpAddress = '127.0.0.1'; // '10.3.141.1';
   int _serverPort = 50002;
   int _listenPort = 0;
   int _pollingRate = 500; // every 500ms
-  Timer? _timer;
+  Timer? _pollingTimer;
   RawDatagramSocket? _socket;
+  ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
   Map<String, dynamic>? _data;
+  Duration _connectionThreshold = Duration(seconds: 3);
+  Timer? _timeoutTimer;
+
+  ConnectionStatus get connectionStatus => _connectionStatus;
   Map<String, dynamic>? get data => _data;
 
   UDPHandler() {
@@ -19,7 +25,8 @@ class UDPHandler extends ChangeNotifier {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _pollingTimer?.cancel();
+    _timeoutTimer?.cancel();
     closeSocket();
     super.dispose();
   }
@@ -50,6 +57,7 @@ class UDPHandler extends ChangeNotifier {
           String message = String.fromCharCodes(datagram.data);
           print('Received incoming UDP: $message');
           _data = json.decode(message);
+          _handleIncomingMessage();
           notifyListeners(); // notify widgets to rebuild
         }
       }
@@ -66,16 +74,17 @@ class UDPHandler extends ChangeNotifier {
 
   void startPolling() {
     print("Started polling");
-    _timer?.cancel();
-    _timer = Timer.periodic(Duration(milliseconds: _pollingRate), (_) {
+    _pollingTimer?.cancel();
+    _pollingTimer = Timer.periodic(Duration(milliseconds: _pollingRate), (_) {
       final Map<String, String> commandJson = {"COMMAND": "REFRESH"};
       sendCommand(commandJson);
     });
   }
 
   void stopPolling() {
-    _timer?.cancel();
-    _timer = null;
+    _updateConnectionStatus(ConnectionStatus.disconnected);
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
     print("Stopped polling");
   }
 
@@ -112,5 +121,29 @@ class UDPHandler extends ChangeNotifier {
     InternetAddress server = InternetAddress(_serverIpAddress);
     final List<int> data = json.encode(commandJson).codeUnits;
     _socket!.send(data, server, _serverPort);
+
+    // Cancel any previous timer
+    _timeoutTimer?.cancel();
+
+    // Start new timeout
+    _timeoutTimer = Timer(_connectionThreshold, () {
+      // If timer fires → no response received in time
+      _updateConnectionStatus(ConnectionStatus.disconnected);
+    });
+  }
+
+  void _handleIncomingMessage() {
+    // Cancel pending timeout
+    _timeoutTimer?.cancel();
+
+    // A response came in → connected
+    _updateConnectionStatus(ConnectionStatus.connected);
+  }
+
+  void _updateConnectionStatus(ConnectionStatus newStatus) {
+    if (newStatus != _connectionStatus) {
+      _connectionStatus = newStatus;
+      notifyListeners();
+    }
   }
 }

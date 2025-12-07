@@ -35,5 +35,35 @@ class AppTheme {
       selectedItemColor: AppColors.navbarSelected,
       unselectedItemColor: AppColors.navbarUnselected,
     ),
+    inputDecorationTheme: InputDecorationTheme(
+      // Floating label color
+      floatingLabelStyle: TextStyle(
+        color: AppColors.muted,
+        fontWeight: FontWeight.w600,
+      ),
+
+      // Label color (when not floating)
+      labelStyle: TextStyle(color: Colors.grey),
+
+      // Text field borders
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderSide: BorderSide(
+          color: AppColors.muted, // unfocused border
+          width: 1.4,
+        ),
+      ),
+
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderSide: BorderSide(
+          color: Colors.blueAccent, // focused border
+          width: 2,
+        ),
+      ),
+
+      // Text style inside input
+      hintStyle: TextStyle(color: Colors.red),
+    ),
   );
 }
