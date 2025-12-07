@@ -21,8 +21,8 @@ class UDPHandler:
     APPLY_SAVE_PARAMS = "APPLY_SAVE_PARAMS"
 
     UDP_IP = "0.0.0.0" # Any
-    UDP_PORT_RCV = 1234
-    UDP_PORT_REP = 5678
+    UDP_PORT_RCV = 50002
+    UDP_PORT_REP = 50002
 
 
     def __init__(self):

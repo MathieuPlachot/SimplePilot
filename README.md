@@ -171,19 +171,22 @@ python3 pilot.py
 ```
 
 # Interfaces
-## Control Unit <-> User Interface
+## Control Unit <-> User Interface Application
+### Transport Layer
 
-The interface between the control unit application and the user interface application relies on UDP exchanges based on JSON format.
+The interface between the Control Unit and the User Interface Application relies on UDP. Both ends listen on UDP port 50002.
 
-The general structure of commands from the user interface to the control unit is as follows :
+### Commands & Statuses
 
-{COMMAND:"cmd_name", PARAMETER_1:"param1_value", PARAMETER_2 ...}
+Commands are sent from the User Interface Application to the Control Unit, Statuses are sent back from the Control Unit to the User Interface Application.
 
-Following commands are defined :
+Commands & Statuses use the JSON format.
+
+Following Commands are defined (one command per UDP Frame):
 
 | Command | Description | Parameters | Example |
 |---|---|---|---|
-|REFRESH|Send back statuses|None|{"COMMAND":"REFRESH"}|
+|REFRESH|Send back Statuses|None|{"COMMAND":"REFRESH"}|
 |SET|Use the current measured heading as its new setpoint.|None|{"COMMAND":"SET"}|
 |SET_MODE|Switch mode to MODE|MODE (String: "AUTO"/"MANU"/"WAYPOINT")|{"COMMAND":"SET_MODE","MODE":"AUTO"}|
 |APPLY_PARAMS|Apply (without saving) the parameters provided as a JSON string complying with the schema provided in the Configuration/ControlUnit section of this README.|PARAMS (String)|{"COMMAND":"APPLY_PARAMS","PARAMS":"{...}"|
@@ -193,16 +196,13 @@ Following commands are defined :
 |INCREASE_TILLER|Move the tiller in the direction of increasing heading at full duty cycle during DURATION seconds|DURATION (Float)|{"COMMAND":"INCREASE_TILLER","DURATION":0.5}|
 |DECREASE_TILLER|Move the tiller in the direction of decreasing heading at full duty cycle during DURATION seconds|DURATION (Float)|{"COMMAND":"DECREASE_TILLER","DURATION":0.5}
 
-The statuses from the control unit application to the user interface application follow the below format :
+Following Statuses are sent alltogether in a single UDP frame upon reception of a REFRESH Command:
 
-{MODE:"mode", KP:"kp_value", KD:"kd_value", KI:"ki_value", CURRENT:"current_heading", SETPOINT:"setpoint", SPEED:"speed", GPS_VALIDITY:"gps_validity"}
-
-with:
-mode: current mode of the control unit (AUTO/MANU)
-kp_value: current value of Kp coefficient used by the control unit
-kd_value: current value of Kd coefficient used by the control unit
-ki_value: current value of Ki coefficient used by the control unit
-current_heading: current heading measured by the control unit
-setpoints: current setpoint targeted by the control unit
-speed: current speed measured by the control unit
-gps_validity: validity status of GPS information provided to the control unit
+| Key | Description | 
+|---|---|
+|MODE|current mode of the control unit (AUTO/MANU)|
+|CURRENT|current heading measured by the control unit|
+|SETPOINT|current setpoint targeted by the control unit|
+|SPEED|current speed measured by the control unit|
+|GPS_VALIDITY|validity status of GPS information provided to the control unit|
+|PARAMS|Currently used parameters provided as a JSON string complying with the schema provided in the Configuration/ControlUnit section of this README|
