@@ -125,16 +125,12 @@ class Pilot:
                 return
             
             elif commandDict["COMMAND"] == UDPHandler.APPLY_PARAMS:
-                # self.currentParameters["KP"] = commandDict["KP"]
-                # self.currentParameters["KI"] = commandDict["KI"]
-                # self.currentParameters["KD"] = commandDict["KD"]
+                self.currentParameters = commandDict["PARAMS"]
                 return
             
             elif commandDict["COMMAND"] == UDPHandler.APPLY_SAVE_PARAMS:
-                # self.currentParameters["KP"] = commandDict["KP"]
-                # self.currentParameters["KI"] = commandDict["KI"]
-                # self.currentParameters["KD"] = commandDict["KD"]
-                # self.saveParamsToConf()
+                self.currentParameters = commandDict["PARAMS"]
+                self.saveParamsToConf()
                 return
 
         except Exception as e:
@@ -196,9 +192,7 @@ class Pilot:
         status["GPSSTATE"] = self.myGPS.getStatus()
         status["MODE"] = self.mode
         status["SPEED"] = self.myGPS.getSpeed()
-        status["KP"] = 0 # self.currentParameters["KP"]
-        status["KD"] = 1 # self.currentParameters["KD"]
-        status["KI"] = 2 # self.currentParameters["KI"]
+        status["PARAMS"] = self.currentParameters
         return status
     
     def routeRankFromRouteName(self, routeName):
