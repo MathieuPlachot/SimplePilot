@@ -22,7 +22,6 @@ class UDPHandler:
 
     UDP_IP = "0.0.0.0" # Any
     UDP_PORT_RCV = 50002
-    UDP_PORT_REP = 50002
 
 
     def __init__(self):
@@ -64,7 +63,7 @@ class UDPHandler:
         
         pilotStatusJsonString = json.dumps(pilotStatus)
         pilotStatusJsonStringBytes = pilotStatusJsonString.encode('utf-8')
-        self.srvSock.sendto(pilotStatusJsonStringBytes, (self.lastClientAddress[0],UDPHandler.UDP_PORT_REP))
+        self.srvSock.sendto(pilotStatusJsonStringBytes, self.lastClientAddress)
         
         return
 
