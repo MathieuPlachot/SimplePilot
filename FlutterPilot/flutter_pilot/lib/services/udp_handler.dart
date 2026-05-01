@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pilot/models/connection_status.model.dart';
 
 class UDPHandler extends ChangeNotifier {
-  String _serverIpAddress = '127.0.0.1'; // '10.3.141.1';
+  String _serverIpAddress = '10.3.141.1'; //127.0.0.1'; // '10.3.141.1';
   int _serverPort = 50002;
   int _listenPort = 0;
   int _pollingRate = 500; // every 500ms
