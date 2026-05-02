@@ -9,6 +9,7 @@ class PilotGPS:
         self.listeningThread = threading.Thread(target=self.listen)
         self.RMCData = {}
         self.listening = True
+        self.buffer = ""
 
         try:
             self.ser = serial.Serial("/dev/ttyACM0", baudrate=9600)
@@ -18,17 +19,29 @@ class PilotGPS:
 
     def listen(self):
         while self.listening:
-            line = self.ser.readline()
-            if "$GPRMC" in str(line):
-                RMCString = str(line)
-                RMCList = RMCString.split(",")
-                self.RMCData["TIME"] = RMCList[1]
-                self.RMCData["VALIDITY"] = RMCList[2]
-                self.RMCData["LATITUDE"] = RMCList[3]+","+RMCList[4]
-                self.RMCData["LONGITUDE"] = RMCList[5]+","+RMCList[6]
-                self.RMCData["SPEED"] = RMCList[7]
-                self.RMCData["ROUTE"] = RMCList[8]
-                # print(self.RMCData)
+            chunk = self.ser.read(self.ser.in_waiting or 1)
+            if not chunk:
+                continue
+
+            # Decode and append to buffer
+            self.buffer += chunk.decode("ascii", errors="ignore")
+
+            # Process all complete lines
+            while "\n" in self.buffer:
+                line, self.buffer = self.buffer.split("\n", 1)
+                line = line.strip()
+
+                # Only process RMC
+                if line.startswith("$GPRMC"):
+                    RMCString = str(line)
+                    RMCList = RMCString.split(",")
+                    self.RMCData["TIME"] = RMCList[1]
+                    self.RMCData["VALIDITY"] = RMCList[2]
+                    self.RMCData["LATITUDE"] = RMCList[3]+","+RMCList[4]
+                    self.RMCData["LONGITUDE"] = RMCList[5]+","+RMCList[6]
+                    self.RMCData["SPEED"] = RMCList[7]
+                    self.RMCData["ROUTE"] = RMCList[8]
+                    # print(self.RMCData)
 
     
 
