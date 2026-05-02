@@ -41,7 +41,7 @@ class PilotGPS:
                     self.RMCData["LONGITUDE"] = RMCList[5]+","+RMCList[6]
                     self.RMCData["SPEED"] = RMCList[7]
                     self.RMCData["ROUTE"] = RMCList[8]
-                    # print(self.RMCData)
+                    print(self.RMCData)
 
     
 
