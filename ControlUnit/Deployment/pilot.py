@@ -138,10 +138,12 @@ class Pilot:
                 return
             
             elif commandDict["COMMAND"] == UDPHandler.FORCE_COEFFS:
-                forcedCoeffs = ",".split(commandDict["VALUES"])
-                self.forcedKp = forcedCoeffs[0]
-                self.forcedKi = forcedCoeffs[1]
-                self.forcedKd = forcedCoeffs[2]
+                print("values", commandDict["VALUES"])
+                forcedCoeffs = commandDict["VALUES"].split(",")
+                print("coeffs", forcedCoeffs)
+                self.forcedKp = float(forcedCoeffs[0])
+                self.forcedKi = float(forcedCoeffs[1])
+                self.forcedKd = float(forcedCoeffs[2])
 
 
         except Exception as e:
@@ -180,7 +182,8 @@ class Pilot:
         else:
             Kd = self.forcedKd
 
-        print("Using Kp,Ki,Kd", Kp, Ki, Kd)
+        if int(self.currentTime) % 5 == 0:
+            print("Using Kp,Ki,Kd", Kp, Ki, Kd)
 
         # self.error_rate = 0
 
@@ -293,7 +296,7 @@ class Pilot:
                 self.currentPosition = self.myGPS.getGPSPosition()
                 self.currentSpeed = float(self.myGPS.getSpeed())
             except:
-                print("Missing GPS data")
+                # print("Missing GPS data")
                 continue
 
 
