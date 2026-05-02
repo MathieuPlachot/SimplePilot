@@ -34,6 +34,10 @@ class Pilot:
         self.Ci = 0
         self.Cd = 0
 
+        self.forcedKp = None
+        self.forcedKi = None
+        self.forcedKd = None
+
     def saveParamsToConf(self):
         scriptDir = Path(__file__).parent
         confPath = scriptDir / ".pilotconf.json"
@@ -132,6 +136,13 @@ class Pilot:
                 self.currentParameters = commandDict["PARAMS"]
                 self.saveParamsToConf()
                 return
+            
+            elif commandDict["COMMAND"] == UDPHandler.FORCE_COEFFS:
+                forcedCoeffs = ",".split(commandDict["VALUES"])
+                self.forcedKp = forcedCoeffs[0]
+                self.forcedKi = forcedCoeffs[1]
+                self.forcedKd = forcedCoeffs[2]
+
 
         except Exception as e:
             print("Could not interpret UDP command")
@@ -148,17 +159,28 @@ class Pilot:
             coeffValues.append(setting[coeffName])
         
         coeffValue = float(np.interp(self.currentSpeed, speeds, coeffValues))
-        print(coeffName, coeffValue)
+        # print(coeffName, coeffValue)
         return coeffValue
 
     def commandFromError(self):
         result = {}
 
-        Kp = self.interpolateCoeffWithSpeed("KP")
-        Ki = self.interpolateCoeffWithSpeed("KI")
-        Kd = self.interpolateCoeffWithSpeed("KD")
+        if self.forcedKp == None:
+            Kp = self.interpolateCoeffWithSpeed("KP")
+        else:
+            Kp = self.forcedKp
 
-        # print("Kp", Kp)
+        if self.forcedKi == None:
+            Ki = self.interpolateCoeffWithSpeed("KI")
+        else:
+            Ki = self.forcedKi
+
+        if self.forcedKd == None:
+            Kd = self.interpolateCoeffWithSpeed("KD")
+        else:
+            Kd = self.forcedKd
+
+        print("Using Kp,Ki,Kd", Kp, Ki, Kd)
 
         # self.error_rate = 0
 
