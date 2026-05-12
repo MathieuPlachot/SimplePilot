@@ -1,4 +1,8 @@
 {
+    "MANUAL_MODE_SETTINGS":{
+        "TILLER_IMPULSE_DURATION": 0.5,
+        "TILLER_IMPULSE_PERCENTAGE": 30
+    },
     "PID_SETTINGS": [
         {
             "SPEED": 2,
