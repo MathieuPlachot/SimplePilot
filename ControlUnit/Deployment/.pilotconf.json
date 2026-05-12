@@ -1,22 +1,25 @@
 {
     "MANUAL_MODE_SETTINGS":{
-        "TILLER_IMPULSE_DURATION": 0.5,
-        "TILLER_IMPULSE_PERCENTAGE": 30
+        "TILLER_IMPULSE_DURATION": 0.2,
+        "TILLER_IMPULSE_PERCENTAGE": 40
     },
-    "PID_SETTINGS": [
-        {
-            "SPEED": 2,
-            "KP": 1,
-            "KI": 2,
-            "KD": 3
-        },
-        {
-            "SPEED": 10,
-            "KP": 10,
-            "KI": 4,
-            "KD": 6
-        }
-    ],
+    "PID_SETTINGS": {
+        "DEAD_ZONE_PERCENTAGE": 15,
+        "COEFFICIENTS": [
+            {
+                "SPEED": 2,
+                "KP": 1,
+                "KI": 2,
+                "KD": 3
+            },
+            {
+                "SPEED": 10,
+                "KP": 10,
+                "KI": 4,
+                "KD": 6
+            }
+        ]
+    },
     "WAYPOINT_SWITCHING_THRESHOLD": 10,
     "ROUTES": [
         {

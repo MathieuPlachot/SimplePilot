@@ -158,7 +158,7 @@ class Pilot:
         speeds = []
         coeffValues = []
 
-        for setting in self.currentParameters["PID_SETTINGS"]:
+        for setting in self.currentParameters["PID_SETTINGS"]["COEFFICIENTS"]:
             speeds.append(setting["SPEED"])
             coeffValues.append(setting[coeffName])
         
@@ -204,7 +204,10 @@ class Pilot:
         
         signedSpeed = self.Cp + self.Cd
 
-        result["SPEED"] = abs(signedSpeed)
+        if abs(signedSpeed) < int(self.currentParameters["PID_SETTINGS"]["DEAD_ZONE_PERCENTAGE"]):
+            result["SPEED"] = 0
+        else:
+            result["SPEED"] = abs(signedSpeed)
 
         if signedSpeed > 0 :
             result["DIR"] = PilotMotor.OUTWARDS
