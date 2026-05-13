@@ -70,6 +70,11 @@ class Pilot:
             if commandDict["COMMAND"] == UDPHandler.SET:
                 print("SET ", self.currentHeading)
                 if self.currentHeading != None:
+
+                    self.prevError = None
+                    self.prevTime = None
+                    self.error_rate = 0
+                    
                     self.setPoint = float(self.currentHeading)
                     return
             
@@ -115,6 +120,11 @@ class Pilot:
                     return # Not applicable in not MANU mode
                 
             elif commandDict["COMMAND"] == UDPHandler.INCREASE_SETPOINT:
+
+                self.prevError = None
+                self.prevTime = None
+                self.error_rate = 0
+                
                 value = commandDict["VALUE"]
                 if self.setPoint < 360 - value:
                     self.setPoint+=value
@@ -123,6 +133,11 @@ class Pilot:
                 return
             
             elif commandDict["COMMAND"] == UDPHandler.DECREASE_SETPOINT:
+
+                self.prevError = None
+                self.prevTime = None
+                self.error_rate = 0
+                
                 value = commandDict["VALUE"]
                 if self.setPoint >= value:
                     self.setPoint-=value
