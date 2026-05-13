@@ -1,6 +1,8 @@
 # Control motor through PWM
 import RPi.GPIO as GPIO
 from rpi_hardware_pwm import HardwarePWM
+import time
+import os
 
 
 class PilotMotor:
@@ -12,11 +14,18 @@ class PilotMotor:
         self.EN_GPIO = 23 # GPIO23 Pin 16
         GPIO.setmode(GPIO.BCM) # Broadcom pin-numbering scheme
         GPIO.setup(self.EN_GPIO, GPIO.OUT) # EN pin set as output
-        
-        self.IN1PWM = HardwarePWM(pwm_channel=0, hz=1000, chip=0) # Channel 0 is GPIO18 Pin 12
-        self.IN2PWM = HardwarePWM(pwm_channel=1, hz=1000, chip=0) # Channel 1 is GPIO19 Pin 35
-        self.IN1PWM.start(0)
-        self.IN2PWM.start(0)
+
+        success = False
+
+        while not success:
+            try:
+                self.IN1PWM = HardwarePWM(pwm_channel=0, hz=1000, chip=0) # Channel 0 is GPIO18 Pin 12
+                self.IN2PWM = HardwarePWM(pwm_channel=1, hz=1000, chip=0) # Channel 1 is GPIO19 Pin 35
+                self.IN1PWM.start(0)
+                self.IN2PWM.start(0)
+                success = True
+            except:
+                print("Waiting for PWM")
 
         
 
