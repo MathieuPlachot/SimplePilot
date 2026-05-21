@@ -65,5 +65,56 @@ class AppTheme {
       // Text style inside input
       hintStyle: TextStyle(color: Colors.red),
     ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: ButtonStyle(
+        minimumSize: WidgetStateProperty.all(const Size(double.infinity, 16)),
+        padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(vertical: 22),
+        ),
+        backgroundColor: WidgetStateProperty.all(Colors.transparent),
+        side: WidgetStateProperty.all(
+          const BorderSide(color: AppColors.muted, width: 1.5),
+        ),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        foregroundColor: WidgetStateProperty.all(AppColors.textDark),
+      ),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        minimumSize: WidgetStateProperty.all(const Size(double.infinity, 16)),
+        padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 22)),
+
+        // Remove selected background
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return Colors.transparent;
+          }
+          return Colors.transparent;
+        }),
+
+        // Border color
+        side: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return BorderSide(color: AppColors.primary, width: 1.5);
+          }
+          return BorderSide(color: AppColors.muted, width: 1.5);
+        }),
+
+        // Rounded left/right corners
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+
+        // Text color for selected + non-selected
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.primary;
+          }
+          return AppColors.textDark;
+        }),
+      ),
+    ),
   );
 }

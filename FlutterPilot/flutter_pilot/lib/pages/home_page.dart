@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  String selected = "MANU";
   late final UDPHandler udpHandler;
   final ButtonStyle squareButtonStyle = ElevatedButton.styleFrom(
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -33,76 +34,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  Widget setHeadingButton(double fontSize) {
-    return ElevatedButton(
-      style: squareButtonStyle,
-      onPressed: () => sendSetHeadingCommand(),
-      child: Text(
-        "SET HEADING",
-        softWrap: false,
-        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  void sendSetHeadingCommand() {
-    final Map<String, String> commandJson = {"COMMAND": "SET"};
-    udpHandler.sendCommand(commandJson);
-  }
-
-  Widget buildButtonRowFromButtons(List<Widget> buttons) {
-    return Expanded(
-      child: Row(
-        children: buttons.map((button) {
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(4.0),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SizedBox.expand(child: button);
-                },
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget pilotCommandButton(String label, double fontSize) {
-    return ElevatedButton(
-      style: squareButtonStyle,
-      onPressed: () => udpHandler.sendUDPMessage(label),
-      child: Text(
-        label,
-        softWrap: false,
-        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  Widget buildButtonRowFromLabels(List<String> labels) {
-    return Expanded(
-      child: Row(
-        children: labels.map((label) {
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(4.0),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  double fontSize = constraints.maxHeight * 0.2;
-                  return SizedBox.expand(
-                    child: pilotCommandButton(label, fontSize),
-                  );
-                },
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
   }
 
   @override
@@ -160,10 +91,75 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               SizedBox(width: 16),
             ],
           ),
+          Spacer(),
           SizedBox(height: 16),
-          buildButtonRowFromLabels(['AUTO', 'MANU']),
-          buildButtonRowFromButtons([setHeadingButton(20)]),
-          buildButtonRowFromLabels(['<<<', '>>>']),
+          Row(
+            children: [
+              SizedBox(width: 16),
+              Expanded(
+                child: SegmentedButton<String>(
+                  showSelectedIcon: false,
+                  segments: const [
+                    ButtonSegment(value: "MANU", label: Text("Manu")),
+                    ButtonSegment(value: "AUTO", label: Text("Auto")),
+                    ButtonSegment(value: "WAYPOINT", label: Text("Waypoint")),
+                  ],
+                  selected: {selected},
+
+                  // Callback
+                  onSelectionChanged: (Set<String> newValue) {
+                    setState(() => selected = newValue.first);
+                    udpHandler.sendUDPMessage(newValue.first);
+                  },
+                ),
+              ),
+              SizedBox(width: 16),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              SizedBox(width: 16),
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: Icon(Icons.explore),
+                  label: Text('Set heading'),
+                  onPressed: () => udpHandler.sendUDPMessage('SET'),
+                ),
+              ),
+              SizedBox(width: 16),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              SizedBox(width: 16),
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: Icon(Icons.arrow_back),
+                  label: Text('Left'),
+                  onPressed: () {
+                    print('Left $selected');
+                    udpHandler.sendUDPMessage('left');
+                  },
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: Icon(Icons.arrow_forward),
+                  iconAlignment: IconAlignment.end,
+                  label: Text('Right'),
+                  onPressed: () {
+                    print('Right $selected');
+                    udpHandler.sendUDPMessage('right');
+                  },
+                ),
+              ),
+              SizedBox(width: 16),
+            ],
+          ),
+          SizedBox(height: 16),
         ],
       ),
     );

@@ -90,13 +90,14 @@ class UDPHandler extends ChangeNotifier {
 
   Future<void> sendUDPMessage(String key) async {
     Map<String, Map<String, dynamic>> commands = {
+      'SET': {"COMMAND": "SET"},
       'AUTO': {'COMMAND': 'SET_MODE', 'MODE': 'AUTO'},
       'MANU': {'COMMAND': 'SET_MODE', 'MODE': 'MANU'},
-      '<<<': {
+      'left': {
         "AUTO": {'COMMAND': 'DECREASE_SETPOINT', 'VALUE': 10},
         "MANU": {'COMMAND': 'DECREASE_TILLER', 'DURATION': 0.5},
       },
-      '>>>': {
+      'right': {
         "AUTO": {'COMMAND': 'INCREASE_SETPOINT', 'VALUE': 10},
         "MANU": {'COMMAND': 'INCREASE_TILLER', 'DURATION': 0.5},
       },
