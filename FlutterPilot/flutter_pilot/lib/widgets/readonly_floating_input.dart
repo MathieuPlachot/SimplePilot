@@ -22,10 +22,12 @@ class ReadonlyFloatingInput extends StatelessWidget {
 
     if (data != null) {
       dynamic value = data[dataKey];
-      if (value is num) {
-        value = value.round(); // rounds to nearest integer
+      if (value != null) {
+        if (value is num) {
+          value = value.round(); // rounds to nearest integer
+        }
+        textValue = value.toString() + suffix;
       }
-      textValue = value.toString() + suffix;
     }
 
     return TextField(
