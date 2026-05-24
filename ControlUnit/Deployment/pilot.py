@@ -204,14 +204,13 @@ class Pilot:
 
         # self.error_rate = 0
 
-        if self.prevError != None and self.error != self.prevError:
+        if self.prevError != None:
             delta_t = self.currentTime - self.prevTime
             delta_err = self.error - self.prevError
             self.error_rate = delta_err / delta_t
             # print("delta err delta_t error_rate", delta_err, delta_t, self.error_rate)
 
-        if self.prevError != self.error:
-            self.prevTime = self.currentTime
+        self.prevTime = self.currentTime
         self.prevError = self.error
         
         self.Cp = Kp * self.error
