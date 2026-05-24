@@ -314,7 +314,7 @@ class Pilot:
                 self.currentHeading = self.myGPS.getGPSRoute()
                 self.currentPosition = self.myGPS.getGPSPosition()
                 self.currentSpeed = float(self.myGPS.getSpeed())
-            except:
+            except Exception:
                 # print("Missing GPS data")
                 continue
 
