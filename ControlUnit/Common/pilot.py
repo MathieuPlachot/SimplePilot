@@ -29,6 +29,9 @@ class Pilot:
         self.error_rate = 0
         self.command = 0
         self.error = 0
+        self.Kp = 0
+        self.Kd = 0
+        self.Ki = 0
         self.Cp = 0
         self.Ci = 0
         self.Cd = 0
@@ -184,22 +187,22 @@ class Pilot:
         result = {}
 
         if self.forcedKp == None:
-            Kp = self.interpolateCoeffWithSpeed("KP")
+            self.Kp = self.interpolateCoeffWithSpeed("KP")
         else:
-            Kp = self.forcedKp
+            self.Kp = self.forcedKp
 
         if self.forcedKi == None:
-            Ki = self.interpolateCoeffWithSpeed("KI")
+            self.Ki = self.interpolateCoeffWithSpeed("KI")
         else:
-            Ki = self.forcedKi
+            self.Ki = self.forcedKi
 
         if self.forcedKd == None:
-            Kd = self.interpolateCoeffWithSpeed("KD")
+            self.Kd = self.interpolateCoeffWithSpeed("KD")
         else:
-            Kd = self.forcedKd
+            self.Kd = self.forcedKd
 
         if int(self.currentTime) % 5 == 0:
-            print("Using Kp,Ki,Kd", Kp, Ki, Kd)
+            print("Using Kp,Ki,Kd", self.Kp, self.Ki, self.Kd)
 
         # self.error_rate = 0
 
@@ -212,8 +215,8 @@ class Pilot:
         self.prevTime = self.currentTime
         self.prevError = self.error
         
-        self.Cp = Kp * self.error
-        self.Cd = Kd * self.error_rate
+        self.Cp = self.Kp * self.error
+        self.Cd = self.Kd * self.error_rate
         
         signedSpeed = self.Cp + self.Cd
 
@@ -235,6 +238,14 @@ class Pilot:
         status["GPSSTATE"] = self.myGPS.getStatus()
         status["MODE"] = self.mode
         status["SPEED"] = self.myGPS.getSpeed()
+        status["C"] = self.command
+        status["KP"] = self.Kp
+        status["KD"] = self.Kd
+        status["Ki"] = self.Ki
+        status["CP"] = self.Cp
+        status["CD"] = self.Cd
+        status["Ci"] = self.Ci
+        status["C"] = self.command
         status["PARAMS"] = self.currentParameters
         return status
     
@@ -344,10 +355,10 @@ class Pilot:
             if self.mode == "AUTO" or self.mode == "WAYPOINT":
                 if(self.setPoint != None and self.currentHeading != None):
                     self.error = calc.smallestError(self.setPoint, self.currentHeading)
-                    command = self.commandFromError()
-                    self.myMotor.command(command["SPEED"], command["DIR"])
+                    self.command = self.commandFromError()
+                    self.myMotor.command(self.command["SPEED"], self.command["DIR"])
                     if self.currentTime - lastDebugTime >= 0.5:
-                        print("MODE", self.mode, "ROUTE", self.currentWPTRouteName, "WPT", self.currentWPTName, "WPT_DIST", self.currentWPTDistance, "SET", self.setPoint, "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", command)
+                        print("MODE", self.mode, "ROUTE", self.currentWPTRouteName, "WPT", self.currentWPTName, "WPT_DIST", self.currentWPTDistance, "SET", self.setPoint, "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", self.command)
                         lastDebugTime = self.currentTime
 
 
