@@ -100,7 +100,7 @@ class Pilot:
                 if self.mode == "MANU":
                     duration = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_DURATION"]
                     percentage = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_PERCENTAGE"]
-                    self.myMotor.command(percentage, PilotMotor.INWARDS)
+                    self.myMotor.command(percentage, self.motorClass.INWARDS)
                     time.sleep(duration)
                     self.myMotor.stop()
                     return
@@ -111,7 +111,7 @@ class Pilot:
                 if self.mode == "MANU":
                     duration = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_DURATION"]
                     percentage = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_PERCENTAGE"]
-                    self.myMotor.command(percentage, PilotMotor.OUTWARDS)
+                    self.myMotor.command(percentage, self.motorClass.OUTWARDS)
                     time.sleep(duration)
                     self.myMotor.stop()
                     return
