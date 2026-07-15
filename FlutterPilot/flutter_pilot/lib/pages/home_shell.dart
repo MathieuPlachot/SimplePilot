@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pilot/pages/about_page.dart';
 import 'package:flutter_pilot/services/udp_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../widgets/bottom_navbar.dart';
 import 'home_page.dart';
 import 'chart_page.dart';
@@ -25,6 +26,9 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
 
     WidgetsBinding.instance.addObserver(this);
 
+    // Prevents the screen from turning off automatically
+    WakelockPlus.enable();
+
     // Start polling immediately if app starts in foreground
     Future.microtask(() {
       if (!mounted) return;
@@ -46,10 +50,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
 
     if (state == AppLifecycleState.resumed) {
       udpHandler.startPolling();
+      WakelockPlus.enable();
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.detached) {
       udpHandler.stopPolling();
+      WakelockPlus.disable();
     }
   }
 
