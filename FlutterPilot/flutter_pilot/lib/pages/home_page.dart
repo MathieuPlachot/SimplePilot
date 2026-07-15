@@ -106,7 +106,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     ButtonSegment(value: "AUTO", label: Text("Auto")),
                     ButtonSegment(value: "WAYPOINT", label: Text("Waypoint")),
                   ],
-                  selected: {selected},
+                  selected: {polledMode ?? selected},
 
                   // Callback
                   onSelectionChanged: (Set<String> newValue) {
@@ -138,7 +138,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               SizedBox(width: 16),
               Expanded(
                 child: OutlinedButton.icon(
-                  icon: Icon(polledMode == "AUTO" ? Icons.remove : Icons.arrow_back),
+                  icon: Icon(
+                    polledMode == "AUTO" ? Icons.remove : Icons.arrow_back,
+                  ),
                   label: Text(polledMode == "AUTO" ? '10°' : 'Left'),
                   onPressed: () {
                     print('Left $selected');
@@ -149,9 +151,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               SizedBox(width: 16),
               Expanded(
                 child: OutlinedButton.icon(
-                  icon: Icon(polledMode == "AUTO" ? Icons.add : Icons.arrow_forward),
-                  iconAlignment:
-                      polledMode == "AUTO" ? IconAlignment.start : IconAlignment.end,
+                  icon: Icon(
+                    polledMode == "AUTO" ? Icons.add : Icons.arrow_forward,
+                  ),
+                  iconAlignment: polledMode == "AUTO"
+                      ? IconAlignment.start
+                      : IconAlignment.end,
                   label: Text(polledMode == "AUTO" ? '10°' : 'Right'),
                   onPressed: () {
                     print('Right $selected');
