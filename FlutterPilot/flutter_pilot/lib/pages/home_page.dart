@@ -38,6 +38,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final String? polledMode = context.watch<UDPHandler>().data?["MODE"];
+
     return Scaffold(
       body: Column(
         children: [
@@ -136,8 +138,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               SizedBox(width: 16),
               Expanded(
                 child: OutlinedButton.icon(
-                  icon: Icon(Icons.arrow_back),
-                  label: Text('Left'),
+                  icon: Icon(polledMode == "AUTO" ? Icons.remove : Icons.arrow_back),
+                  label: Text(polledMode == "AUTO" ? '10°' : 'Left'),
                   onPressed: () {
                     print('Left $selected');
                     udpHandler.sendUDPMessage('left');
@@ -147,9 +149,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               SizedBox(width: 16),
               Expanded(
                 child: OutlinedButton.icon(
-                  icon: Icon(Icons.arrow_forward),
-                  iconAlignment: IconAlignment.end,
-                  label: Text('Right'),
+                  icon: Icon(polledMode == "AUTO" ? Icons.add : Icons.arrow_forward),
+                  iconAlignment:
+                      polledMode == "AUTO" ? IconAlignment.start : IconAlignment.end,
+                  label: Text(polledMode == "AUTO" ? '10°' : 'Right'),
                   onPressed: () {
                     print('Right $selected');
                     udpHandler.sendUDPMessage('right');
