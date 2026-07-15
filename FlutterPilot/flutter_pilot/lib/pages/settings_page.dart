@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_pilot/services/udp_handler.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -6,8 +8,9 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final TextEditingController _serverIpController = TextEditingController();
+
   final List<String> parametersList = [
-    'Server IP',
     'Kp (Proportional Coefficient)',
     'Ki (Integral Coefficient)',
     'Kd (Derivative Coefficient)',
@@ -19,24 +22,43 @@ class _SettingsPageState extends State<SettingsPage> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    _serverIpController.text = context.read<UDPHandler>().serverIpAddress;
+  }
+
+  @override
   void dispose() {
+    _serverIpController.dispose();
     for (TextEditingController controller in _controllers) {
       controller.dispose();
     }
     super.dispose();
   }
 
-  Widget _buildLabeledTextField(int index) {
+  void _saveSettings() {
+    context.read<UDPHandler>().setServerIpAddress(
+      _serverIpController.text.trim(),
+    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Settings saved')));
+  }
+
+  Widget _buildLabeledTextField(
+    String label,
+    TextEditingController controller,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
         children: [
-          Expanded(flex: 2, child: Text(parametersList[index])),
+          Expanded(flex: 2, child: Text(label)),
           SizedBox(width: 10),
           Expanded(
             flex: 5,
             child: TextField(
-              controller: _controllers[index],
+              controller: controller,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'Enter value',
@@ -54,9 +76,12 @@ class _SettingsPageState extends State<SettingsPage> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              itemCount: parametersList.length,
-              itemBuilder: (context, index) => _buildLabeledTextField(index),
+            child: ListView(
+              children: [
+                _buildLabeledTextField('Server IP', _serverIpController),
+                for (int i = 0; i < parametersList.length; i++)
+                  _buildLabeledTextField(parametersList[i], _controllers[i]),
+              ],
             ),
           ),
           Padding(
@@ -74,9 +99,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Handle second button press
-                    },
+                    onPressed: _saveSettings,
                     child: Text('Save'),
                   ),
                 ),

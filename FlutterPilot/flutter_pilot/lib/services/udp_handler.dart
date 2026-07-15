@@ -3,9 +3,12 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_pilot/models/connection_status.model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UDPHandler extends ChangeNotifier {
-  String _serverIpAddress = '10.3.141.1'; //127.0.0.1'; // '10.3.141.1';
+  static const String _serverIpAddressPrefKey = 'server_ip_address';
+
+  String _serverIpAddress = '127.0.0.1'; // '10.3.141.1';
   int _serverPort = 50002;
   int _listenPort = 0;
   int _pollingRate = 500; // every 500ms
@@ -18,9 +21,28 @@ class UDPHandler extends ChangeNotifier {
 
   ConnectionStatus get connectionStatus => _connectionStatus;
   Map<String, dynamic>? get data => _data;
+  String get serverIpAddress => _serverIpAddress;
 
   UDPHandler() {
+    _loadServerIpAddress();
     openSocket();
+  }
+
+  Future<void> _loadServerIpAddress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedIpAddress = prefs.getString(_serverIpAddressPrefKey);
+    if (savedIpAddress != null && savedIpAddress.isNotEmpty) {
+      _serverIpAddress = savedIpAddress;
+      notifyListeners();
+    }
+  }
+
+  Future<void> setServerIpAddress(String ipAddress) async {
+    _serverIpAddress = ipAddress;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_serverIpAddressPrefKey, ipAddress);
   }
 
   @override
@@ -121,23 +143,27 @@ class UDPHandler extends ChangeNotifier {
 
     InternetAddress server = InternetAddress(_serverIpAddress);
     final List<int> data = json.encode(commandJson).codeUnits;
+    print(
+      'Sending UDP command to $_serverIpAddress:$_serverPort -> $commandJson',
+    );
     _socket!.send(data, server, _serverPort);
 
-    // Cancel any previous timer
-    _timeoutTimer?.cancel();
-
-    // Start new timeout
-    _timeoutTimer = Timer(_connectionThreshold, () {
-      // If timer fires → no response received in time
+    // Only arm the watchdog if one isn't already pending. It must only be
+    // reset when a response actually arrives (_handleIncomingMessage) -
+    // resetting it on every send would keep pushing it out on each poll
+    // tick (500ms) and it would never get a chance to fire at 3s.
+    _timeoutTimer ??= Timer(_connectionThreshold, () {
       _updateConnectionStatus(ConnectionStatus.disconnected);
+      _timeoutTimer = null;
     });
   }
 
   void _handleIncomingMessage() {
-    // Cancel pending timeout
+    // A response came in → cancel the watchdog and mark connected. The next
+    // sendCommand call will arm a fresh watchdog for the next response.
     _timeoutTimer?.cancel();
+    _timeoutTimer = null;
 
-    // A response came in → connected
     _updateConnectionStatus(ConnectionStatus.connected);
   }
 
