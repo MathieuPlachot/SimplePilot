@@ -5,7 +5,10 @@ class AppTheme {
   static ThemeData darkTheme = ThemeData(
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.background,
-    textTheme: TextTheme(bodyMedium: TextStyle(color: AppColors.textDark)),
+    textTheme: TextTheme(
+      bodyMedium: TextStyle(color: AppColors.textDark),
+      bodyLarge: TextStyle(color: AppColors.textDark),
+    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.navbarBackground,
       foregroundColor: AppColors.textDark,
