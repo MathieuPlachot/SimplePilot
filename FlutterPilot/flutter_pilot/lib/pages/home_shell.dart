@@ -14,10 +14,10 @@ class HomeShell extends StatefulWidget {
 }
 
 class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
-  int _currentIndex = 1; // default Home tab
+  int _currentIndex = 0; // default Home tab
   late final PageController _pageController;
 
-  final List<Widget> _pages = [ChartPage(), HomePage(), SettingsPage()];
+  final List<Widget> _pages = [HomePage(), ChartPage(), SettingsPage()];
 
   @override
   void initState() {
@@ -60,16 +60,8 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   }
 
   int _drawerSelectedIndex() {
-    switch (_currentIndex) {
-      case 1:
-        return 0; // Home
-      case 0:
-        return 1; // Chart
-      case 2:
-        return 2; // Settings
-      default:
-        return -1; // About (not part of bottom nav)
-    }
+    if (_currentIndex <= 2) return _currentIndex;
+    return -1; // About (not part of bottom nav)
   }
 
   void _onDrawerSelected(int index) {
@@ -77,13 +69,9 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
 
     switch (index) {
       case 0: // Home
-        _onTabSelected(1); // bottom nav index for Home
-
       case 1: // Chart
-        _onTabSelected(0); // bottom nav index for Chart
-
       case 2: // Settings
-        _onTabSelected(2); // bottom nav index for Settings
+        _onTabSelected(index);
 
       case 3: // About
         Navigator.push(context, MaterialPageRoute(builder: (_) => AboutPage()));
