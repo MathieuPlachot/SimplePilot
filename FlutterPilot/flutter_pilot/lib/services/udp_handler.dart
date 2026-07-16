@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_pilot/models/connection_status.model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi_iot/wifi_iot.dart';
 
 class UDPHandler extends ChangeNotifier {
   static const String _serverIpAddressPrefKey = 'server_ip_address';
@@ -60,6 +61,11 @@ class UDPHandler extends ChangeNotifier {
       return;
     }
 
+    // ControlUnit has no internet access, so if mobile data is enabled
+    // Android/iOS may route our traffic over cellular instead of Wi-Fi.
+    // Force the app's traffic onto Wi-Fi without disabling mobile data.
+    await WiFiForIoTPlugin.forceWifiUsage(true);
+
     _socket = await RawDatagramSocket.bind(
       InternetAddress.anyIPv4,
       _listenPort,
@@ -91,6 +97,7 @@ class UDPHandler extends ChangeNotifier {
       print("Closing UDP socket");
       _socket!.close();
       _socket = null;
+      WiFiForIoTPlugin.forceWifiUsage(false);
     }
   }
 
