@@ -13,6 +13,7 @@ dependencies:
   provider: ^6.1.5
   wakelock_plus: ^1.4.0
   shared_preferences: ^2.5.5
+  wifi_iot: ^0.3.19+2
 
 dev_dependencies:
   flutter_test:
@@ -21,3 +22,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - lib/assets/logo-transparent.png
