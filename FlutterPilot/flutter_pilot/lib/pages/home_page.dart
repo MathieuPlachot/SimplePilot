@@ -93,8 +93,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               SizedBox(width: 16),
             ],
           ),
-          Spacer(),
-          SizedBox(height: 16),
+          Expanded(
+            child: Center(
+              child: Image.asset(
+                'lib/assets/logo-transparent.png',
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
           Row(
             children: [
               SizedBox(width: 16),
