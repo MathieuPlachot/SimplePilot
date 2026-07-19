@@ -37,6 +37,7 @@ class Pilot:
         self.Cp = 0
         self.Ci = 0
         self.Cd = 0
+        self.C = 0
 
         self.forcedKp = None
         self.forcedKi = None
@@ -223,14 +224,14 @@ class Pilot:
         self.Cp = self.Kp * self.error
         self.Cd = self.Kd * self.error_rate
         
-        signedSpeed = self.Cp + self.Cd
+        self.C = self.Cp + self.Cd
 
-        if abs(signedSpeed) < int(self.currentParameters["PID_SETTINGS"]["DEAD_ZONE_PERCENTAGE"]):
+        if abs(self.C) < int(self.currentParameters["PID_SETTINGS"]["DEAD_ZONE_PERCENTAGE"]):
             result["SPEED"] = 0
         else:
-            result["SPEED"] = abs(signedSpeed)
+            result["SPEED"] = abs(self.C)
 
-        if signedSpeed > 0 :
+        if self.C > 0 :
             result["DIR"] = self.motorClass.OUTWARDS
         else:
             result["DIR"] = self.motorClass.INWARDS
@@ -243,14 +244,13 @@ class Pilot:
         status["GPSSTATE"] = self.myGPS.getStatus()
         status["MODE"] = self.mode
         status["SPEED"] = self.myGPS.getSpeed()
-        status["C"] = self.command
         status["KP"] = self.Kp
         status["KD"] = self.Kd
         status["Ki"] = self.Ki
         status["CP"] = self.Cp
         status["CD"] = self.Cd
         status["Ci"] = self.Ci
-        status["C"] = self.command
+        status["C"] = self.C
         status["PARAMS"] = self.currentParameters
         return status
     
