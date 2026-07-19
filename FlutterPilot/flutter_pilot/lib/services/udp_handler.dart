@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pilot/models/connection_status.model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +20,7 @@ class UDPHandler extends ChangeNotifier {
   Map<String, dynamic>? _data;
   Duration _connectionThreshold = Duration(seconds: 3);
   Timer? _timeoutTimer;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   ConnectionStatus get connectionStatus => _connectionStatus;
   Map<String, dynamic>? get data => _data;
@@ -27,6 +29,18 @@ class UDPHandler extends ChangeNotifier {
   UDPHandler() {
     _loadServerIpAddress();
     openSocket();
+    _listenConnectivityChanges();
+  }
+
+  void _listenConnectivityChanges() {
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      results,
+    ) async {
+      if (results.contains(ConnectivityResult.wifi)) {
+        print('Wi-Fi reconnected, re-binding process to network');
+        await WiFiForIoTPlugin.forceWifiUsage(true);
+      }
+    });
   }
 
   Future<void> _loadServerIpAddress() async {
@@ -48,6 +62,7 @@ class UDPHandler extends ChangeNotifier {
 
   @override
   void dispose() {
+    _connectivitySubscription?.cancel();
     _pollingTimer?.cancel();
     _timeoutTimer?.cancel();
     closeSocket();
