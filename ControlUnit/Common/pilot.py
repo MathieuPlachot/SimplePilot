@@ -26,6 +26,8 @@ class Pilot:
         self.myUDPHandler.startListening()
         self.prevError = None
         self.prevTime = None
+        self.derivativeStepSecs = 1
+        self.lastDerivativeEvalTime = None
         self.error_rate = 0
         self.command = 0
         self.error = 0
@@ -201,19 +203,22 @@ class Pilot:
         else:
             self.Kd = self.forcedKd
 
-        if int(self.currentTime) % 5 == 0:
-            print("Using Kp,Ki,Kd", self.Kp, self.Ki, self.Kd)
+        # if int(self.currentTime) % 5 == 0:
+        #     print("Using Kp,Ki,Kd", self.Kp, self.Ki, self.Kd)
 
         # self.error_rate = 0
 
-        if self.prevError != None:
-            delta_t = self.currentTime - self.prevTime
-            delta_err = self.error - self.prevError
-            self.error_rate = delta_err / delta_t
-            # print("delta err delta_t error_rate", delta_err, delta_t, self.error_rate)
-
-        self.prevTime = self.currentTime
-        self.prevError = self.error
+        if self.prevError != None and self.lastDerivativeEvalTime != None:
+            if self.currentTime - self.lastDerivativeEvalTime >= self.derivativeStepSecs:
+                # delta_t = self.currentTime - self.prevTime
+                delta_err = self.error - self.prevError
+                self.error_rate = delta_err / self.derivativeStepSecs
+                self.lastDerivativeEvalTime = self.currentTime
+                self.prevError = self.error
+                print("error, prev error, delta err, error_rate", self.error, self.prevError, delta_err, self.error_rate)
+        else:
+            self.lastDerivativeEvalTime = self.currentTime
+            self.prevError = self.error
         
         self.Cp = self.Kp * self.error
         self.Cd = self.Kd * self.error_rate
@@ -358,7 +363,7 @@ class Pilot:
                     self.command = self.commandFromError()
                     self.myMotor.command(self.command["SPEED"], self.command["DIR"])
                     if self.currentTime - lastDebugTime >= 0.5:
-                        print("MODE", self.mode, "ROUTE", self.currentWPTRouteName, "WPT", self.currentWPTName, "WPT_DIST", self.currentWPTDistance, "SET", self.setPoint, "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", self.command)
+                        print("MODE", self.mode, "ROUTE", self.currentWPTRouteName, "WPT", self.currentWPTName, "WPT_DIST", self.currentWPTDistance, "SET", self.setPoint, "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", self.command, "Kp", self.Kp, "Kd", self.Kd)
                         lastDebugTime = self.currentTime
 
 

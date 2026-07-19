@@ -46,12 +46,12 @@ class UDPHandler:
     def listen(self):
         while self.listening:
             data, addr = self.srvSock.recvfrom(1024)
-            print("[UDPHandler] Received data from", addr, "[", data, "]")
+            # print("[UDPHandler] Received data from", addr, "[", data, "]")
             self.lastCommand = data
             self.lastClientAddress = addr
 
     def transmitStatus(self, pilotStatus):
-        print("[UDPHandler] Transmitting status to", self.lastClientAddress)
+        # print("[UDPHandler] Transmitting status to", self.lastClientAddress)
         pilotStatusJsonString = json.dumps(pilotStatus)
         pilotStatusJsonStringBytes = pilotStatusJsonString.encode('utf-8')
         self.srvSock.sendto(pilotStatusJsonStringBytes, self.lastClientAddress)
