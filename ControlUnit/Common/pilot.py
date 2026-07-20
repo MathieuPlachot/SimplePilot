@@ -104,9 +104,11 @@ class Pilot:
             
             elif commandDict["COMMAND"] == UDPHandler.INCREASE_TILLER:
                 if self.mode == "MANU":
-                    duration = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_DURATION"]
-                    percentage = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_PERCENTAGE"]
-                    self.myMotor.command(percentage, self.motorClass.INWARDS)
+                    duration = float(commandDict["DURATION"])
+                    speed = float(commandDict["SPEED"])
+                    # duration = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_DURATION"]
+                    # percentage = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_PERCENTAGE"]
+                    self.myMotor.command(speed, self.motorClass.INWARDS)
                     time.sleep(duration)
                     self.myMotor.stop()
                     return
@@ -115,9 +117,11 @@ class Pilot:
 
             elif commandDict["COMMAND"] == UDPHandler.DECREASE_TILLER:
                 if self.mode == "MANU":
-                    duration = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_DURATION"]
-                    percentage = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_PERCENTAGE"]
-                    self.myMotor.command(percentage, self.motorClass.OUTWARDS)
+                    duration = float(commandDict["DURATION"])
+                    speed = float(commandDict["SPEED"])
+                    # duration = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_DURATION"]
+                    # percentage = self.currentParameters["MANUAL_MODE_SETTINGS"]["TILLER_IMPULSE_PERCENTAGE"]
+                    self.myMotor.command(speed, self.motorClass.OUTWARDS)
                     time.sleep(duration)
                     self.myMotor.stop()
                     return
