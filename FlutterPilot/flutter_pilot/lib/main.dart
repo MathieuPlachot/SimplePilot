@@ -32,7 +32,5 @@ class SimplePilot extends StatelessWidget {
 // * Rework UI to allow the definition of coefficients per speed
 // * Align with interface specification after spec rework
 // * Rework first screen UI to add waypoint mode (mode selector, current waypoint info, route selection  ...)
-// * WiFi disco issue
+// * WiFi disco issue TO VALIDATE
 // * Set Kp Ki Kd
-// * Modify Manu cmd with speed
-// * Add settings for step for both auto/manu
