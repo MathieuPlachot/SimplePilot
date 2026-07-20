@@ -9,10 +9,12 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex,
       onTap: onTap,
       items: [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.tune), label: 'Tuning'),
         BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: 'Chart'),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
       ],

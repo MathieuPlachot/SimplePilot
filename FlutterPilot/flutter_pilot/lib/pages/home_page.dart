@@ -38,7 +38,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final String? polledMode = context.watch<UDPHandler>().data?["MODE"];
+    final UDPHandler udpHandlerWatch = context.watch<UDPHandler>();
+    final String? polledMode = udpHandlerWatch.data?["MODE"];
+    final int autoStep = udpHandlerWatch.autoStep;
 
     return Scaffold(
       body: Column(
@@ -147,7 +149,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   icon: Icon(
                     polledMode == "AUTO" ? Icons.remove : Icons.arrow_back,
                   ),
-                  label: Text(polledMode == "AUTO" ? '10°' : 'Left'),
+                  label: Text(polledMode == "AUTO" ? '$autoStep°' : 'Left'),
                   onPressed: () {
                     print('Left $selected');
                     udpHandler.sendUDPMessage('left');
@@ -163,7 +165,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   iconAlignment: polledMode == "AUTO"
                       ? IconAlignment.start
                       : IconAlignment.end,
-                  label: Text(polledMode == "AUTO" ? '10°' : 'Right'),
+                  label: Text(polledMode == "AUTO" ? '$autoStep°' : 'Right'),
                   onPressed: () {
                     print('Right $selected');
                     udpHandler.sendUDPMessage('right');

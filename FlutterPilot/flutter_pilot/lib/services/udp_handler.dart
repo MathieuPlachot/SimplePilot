@@ -9,8 +9,14 @@ import 'package:wifi_iot/wifi_iot.dart';
 
 class UDPHandler extends ChangeNotifier {
   static const String _serverIpAddressPrefKey = 'server_ip_address';
+  static const String _autoStepPrefKey = 'auto_step';
+  static const String _manuDurationPrefKey = 'manu_duration';
+  static const String _manuSpeedPrefKey = 'manu_speed';
 
   String _serverIpAddress = '127.0.0.1'; // '10.3.141.1';
+  int _autoStep = 10;
+  double _manuDuration = 0.5;
+  int _manuSpeed = 50;
   int _serverPort = 50002;
   int _listenPort = 0;
   int _pollingRate = 500; // every 500ms
@@ -25,9 +31,15 @@ class UDPHandler extends ChangeNotifier {
   ConnectionStatus get connectionStatus => _connectionStatus;
   Map<String, dynamic>? get data => _data;
   String get serverIpAddress => _serverIpAddress;
+  int get autoStep => _autoStep;
+  double get manuDuration => _manuDuration;
+  int get manuSpeed => _manuSpeed;
 
   UDPHandler() {
     _loadServerIpAddress();
+    _loadAutoStep();
+    _loadManuDuration();
+    _loadManuSpeed();
     openSocket();
     _listenConnectivityChanges();
   }
@@ -58,6 +70,57 @@ class UDPHandler extends ChangeNotifier {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_serverIpAddressPrefKey, ipAddress);
+  }
+
+  Future<void> _loadAutoStep() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedAutoStep = prefs.getInt(_autoStepPrefKey);
+    if (savedAutoStep != null) {
+      _autoStep = savedAutoStep;
+      notifyListeners();
+    }
+  }
+
+  Future<void> setAutoStep(int step) async {
+    _autoStep = step;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_autoStepPrefKey, step);
+  }
+
+  Future<void> _loadManuDuration() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedManuDuration = prefs.getDouble(_manuDurationPrefKey);
+    if (savedManuDuration != null) {
+      _manuDuration = savedManuDuration;
+      notifyListeners();
+    }
+  }
+
+  Future<void> setManuDuration(double duration) async {
+    _manuDuration = duration;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_manuDurationPrefKey, duration);
+  }
+
+  Future<void> _loadManuSpeed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedManuSpeed = prefs.getInt(_manuSpeedPrefKey);
+    if (savedManuSpeed != null) {
+      _manuSpeed = savedManuSpeed;
+      notifyListeners();
+    }
+  }
+
+  Future<void> setManuSpeed(int speed) async {
+    _manuSpeed = speed;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_manuSpeedPrefKey, speed);
   }
 
   @override
@@ -138,12 +201,20 @@ class UDPHandler extends ChangeNotifier {
       'AUTO': {'COMMAND': 'SET_MODE', 'MODE': 'AUTO'},
       'MANU': {'COMMAND': 'SET_MODE', 'MODE': 'MANU'},
       'left': {
-        "AUTO": {'COMMAND': 'DECREASE_SETPOINT', 'VALUE': 10},
-        "MANU": {'COMMAND': 'DECREASE_TILLER', 'DURATION': 0.5},
+        "AUTO": {'COMMAND': 'DECREASE_SETPOINT', 'VALUE': _autoStep},
+        "MANU": {
+          'COMMAND': 'DECREASE_TILLER',
+          'DURATION': _manuDuration,
+          'SPEED': _manuSpeed,
+        },
       },
       'right': {
-        "AUTO": {'COMMAND': 'INCREASE_SETPOINT', 'VALUE': 10},
-        "MANU": {'COMMAND': 'INCREASE_TILLER', 'DURATION': 0.5},
+        "AUTO": {'COMMAND': 'INCREASE_SETPOINT', 'VALUE': _autoStep},
+        "MANU": {
+          'COMMAND': 'INCREASE_TILLER',
+          'DURATION': _manuDuration,
+          'SPEED': _manuSpeed,
+        },
       },
     };
 
