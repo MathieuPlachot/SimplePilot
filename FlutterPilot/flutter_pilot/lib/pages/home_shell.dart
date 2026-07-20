@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../widgets/bottom_navbar.dart';
 import 'home_page.dart';
+import 'tuning_page.dart';
 import 'chart_page.dart';
 import 'settings_page.dart';
 
@@ -17,7 +18,12 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   int _currentIndex = 0; // default Home tab
   late final PageController _pageController;
 
-  final List<Widget> _pages = [HomePage(), ChartPage(), SettingsPage()];
+  final List<Widget> _pages = [
+    HomePage(),
+    TuningPage(),
+    ChartPage(),
+    SettingsPage(),
+  ];
 
   @override
   void initState() {
@@ -60,7 +66,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   }
 
   int _drawerSelectedIndex() {
-    if (_currentIndex <= 2) return _currentIndex;
+    if (_currentIndex <= 3) return _currentIndex;
     return -1; // About (not part of bottom nav)
   }
 
@@ -69,16 +75,19 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
 
     switch (index) {
       case 0: // Home
-      case 1: // Chart
-      case 2: // Settings
+      case 1: // Tuning
+      case 2: // Chart
+      case 3: // Settings
         _onTabSelected(index);
 
-      case 3: // About
+      case 4: // About
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
         Navigator.push(context, MaterialPageRoute(builder: (_) => AboutPage()));
     }
   }
 
   void _onTabSelected(int index) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     setState(() {
       _currentIndex = index;
     });
@@ -115,6 +124,10 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
           NavigationDrawerDestination(
             icon: Icon(Icons.home),
             label: Text("Home"),
+          ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.tune),
+            label: Text("Tuning"),
           ),
           NavigationDrawerDestination(
             icon: Icon(Icons.show_chart),
