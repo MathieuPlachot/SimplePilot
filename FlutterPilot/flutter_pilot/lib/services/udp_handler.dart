@@ -17,6 +17,9 @@ class UDPHandler extends ChangeNotifier {
   int _autoStep = 10;
   double _manuDuration = 0.5;
   int _manuSpeed = 50;
+  double _forcedKp = 0;
+  double _forcedKd = 0;
+  double _forcedKi = 0;
   int _serverPort = 50002;
   int _listenPort = 0;
   int _pollingRate = 500; // every 500ms
@@ -123,6 +126,12 @@ class UDPHandler extends ChangeNotifier {
     await prefs.setInt(_manuSpeedPrefKey, speed);
   }
 
+  void setForcedCoefficients(double kp, double kd, double ki) {
+    _forcedKp = kp;
+    _forcedKd = kd;
+    _forcedKi = ki;
+  }
+
   @override
   void dispose() {
     _connectivitySubscription?.cancel();
@@ -200,6 +209,10 @@ class UDPHandler extends ChangeNotifier {
       'SET': {"COMMAND": "SET"},
       'AUTO': {'COMMAND': 'SET_MODE', 'MODE': 'AUTO'},
       'MANU': {'COMMAND': 'SET_MODE', 'MODE': 'MANU'},
+      'FORCE_COEFFS': {
+        'COMMAND': 'FORCE_COEFFS',
+        'VALUES': '$_forcedKp,$_forcedKi,$_forcedKd',
+      },
       'left': {
         "AUTO": {'COMMAND': 'DECREASE_SETPOINT', 'VALUE': _autoStep},
         "MANU": {
