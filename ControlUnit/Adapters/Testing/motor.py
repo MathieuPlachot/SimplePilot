@@ -22,10 +22,11 @@ class PilotMotor:
         if speed > 98:
             speed = 98
 
+        print("[MOTOR][TESTING] Apply ", speed)
         # print("[MOTOR] Apply DUTY ", speed, "DIRECTION", direction)
 
     def stop(self):        
-        print("[MOTOR] Apply STOP ")
+        print("[MOTOR][TESTING] Apply STOP ")
         
 
 
