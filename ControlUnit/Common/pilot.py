@@ -170,6 +170,9 @@ class Pilot:
                 self.forcedKp = float(forcedCoeffs[0])
                 self.forcedKi = float(forcedCoeffs[1])
                 self.forcedKd = float(forcedCoeffs[2])
+                self.Kp = self.forcedKp
+                self.Ki = self.forcedKi
+                self.Kd = self.forcedKd
 
 
         except Exception as e:
