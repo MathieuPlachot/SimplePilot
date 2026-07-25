@@ -24,13 +24,8 @@ class SimplePilot extends StatelessWidget {
   }
 }
 
-// TODO
-// Show connection status as a top bar
-// Send and display Kp,Ki,Kd, IP Addr
-// Improve info display
-// Continuous movement in manual mode
+// TODO:
+// * Continuous movement in manual mode
 // * Rework UI to allow the definition of coefficients per speed
-// * Align with interface specification after spec rework
 // * Rework first screen UI to add waypoint mode (mode selector, current waypoint info, route selection  ...)
 // * WiFi disco issue TO VALIDATE
-// * Set Kp Ki Kd
