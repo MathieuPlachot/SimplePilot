@@ -105,9 +105,7 @@ class _TuningPageState extends State<TuningPage> {
         children: [
           TextField(
             controller: controller,
-            keyboardType: const TextInputType.numberWithOptions(
-              decimal: true,
-            ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: Theme.of(context).textTheme.bodyMedium,
             decoration: InputDecoration(
               labelText: label,

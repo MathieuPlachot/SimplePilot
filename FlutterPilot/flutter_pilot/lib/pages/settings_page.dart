@@ -11,8 +11,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   final TextEditingController _serverIpController = TextEditingController();
   final TextEditingController _autoStepController = TextEditingController();
-  final TextEditingController _manuDurationController =
-      TextEditingController();
+  final TextEditingController _manuDurationController = TextEditingController();
   final TextEditingController _manuSpeedController = TextEditingController();
 
   final List<String> parametersList = [
@@ -34,10 +33,7 @@ class _SettingsPageState extends State<SettingsPage> {
         .read<UDPHandler>()
         .manuDuration
         .toString();
-    _manuSpeedController.text = context
-        .read<UDPHandler>()
-        .manuSpeed
-        .toString();
+    _manuSpeedController.text = context.read<UDPHandler>().manuSpeed.toString();
 
     for (final controller in [
       _serverIpController,
