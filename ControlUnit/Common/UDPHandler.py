@@ -32,8 +32,8 @@ class UDPHandler:
         self.srvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # TCP Socket
         self.srvSock.bind((UDPHandler.UDP_IP, UDPHandler.UDP_PORT_RCV))
 
-        self.listeningThread = threading.Thread(target=self.listen)
-        self.transmittingThread = threading.Thread(target=self.transmitStatus)
+        self.listeningThread = threading.Thread(target=self.listen, daemon=True)
+        self.transmittingThread = threading.Thread(target=self.transmitStatus, daemon=True)
         self.listening = True
         self.lastCommand = None
         self.lastClientAddress = None
@@ -59,7 +59,7 @@ class UDPHandler:
         return
 
     def startTransmitting(self, pilotStatus):
-        self.transmittingThread = threading.Thread(target=self.transmitStatus, args=(pilotStatus,))
+        self.transmittingThread = threading.Thread(target=self.transmitStatus, args=(pilotStatus,), daemon=True)
         self.transmittingThread.start()
 
     def startListening(self):

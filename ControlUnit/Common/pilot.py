@@ -335,52 +335,60 @@ class Pilot:
             return
 
 
+    def shutdown(self):
+        print("Shutting down, stopping motor...")
+        self.myMotor.stop()
+        self.myMotor.cleanup()
+
     def run(self):
         lastDebugTime = 0
-        while True:
-            self.currentTime = time.time()
-            self.handleUDP()
+        try:
+            while True:
+                self.currentTime = time.time()
+                self.handleUDP()
 
-            try:
-                self.currentHeading = self.myGPS.getGPSRoute()
-                self.currentPosition = self.myGPS.getGPSPosition()
-                self.currentSpeed = float(self.myGPS.getSpeed())
-            except Exception:
-                # print("Missing GPS data")
-                continue
+                try:
+                    self.currentHeading = self.myGPS.getGPSRoute()
+                    self.currentPosition = self.myGPS.getGPSPosition()
+                    self.currentSpeed = float(self.myGPS.getSpeed())
+                except Exception:
+                    # print("Missing GPS data")
+                    continue
 
 
-            if self.mode == "WAYPOINT":
+                if self.mode == "WAYPOINT":
 
-                if not self.currentWPTRouteName:
-                    print("No route selected for WPT mode. Falling back to MANU mode")
-                    self.mode = "MANU"
-                elif self.currentWPTName == None: # If no current waypoint is defined, select the closest one from current position
-                    self.selectClosestWaypointFromCurrentRoute()
-                    print("No current Waypoint, selecting closest waypoint", self.currentWPTName)
-                
-                # print("crurrent route", self.currentWPTRouteName)
-                # print("current wpt", self.currentWPTName)
-                wptData = self.wptDataFromRouteAndWPTName(self.currentWPTRouteName,self.currentWPTName)
-                distAndBearingToWaypoint = calc.distAndBearingAtoB(self.currentPosition, wptData)
+                    if not self.currentWPTRouteName:
+                        print("No route selected for WPT mode. Falling back to MANU mode")
+                        self.mode = "MANU"
+                    elif self.currentWPTName == None: # If no current waypoint is defined, select the closest one from current position
+                        self.selectClosestWaypointFromCurrentRoute()
+                        print("No current Waypoint, selecting closest waypoint", self.currentWPTName)
 
-                # Set setPoint towards current waypoint
-                self.setPoint = distAndBearingToWaypoint["BEARING"]
-                self.currentWPTDistance = distAndBearingToWaypoint["DISTANCE"]
+                    # print("crurrent route", self.currentWPTRouteName)
+                    # print("current wpt", self.currentWPTName)
+                    wptData = self.wptDataFromRouteAndWPTName(self.currentWPTRouteName,self.currentWPTName)
+                    distAndBearingToWaypoint = calc.distAndBearingAtoB(self.currentPosition, wptData)
 
-                # If getting close to the current waypoint, target the next waypoint of the route
-                if self.currentWPTDistance <= self.currentParameters["WAYPOINT_SWITCHING_THRESHOLD"]:
-                    print("Reached Waypoint, switching to next.")
-                    self.selectNextWaypointFromCurrentRoute()
+                    # Set setPoint towards current waypoint
+                    self.setPoint = distAndBearingToWaypoint["BEARING"]
+                    self.currentWPTDistance = distAndBearingToWaypoint["DISTANCE"]
 
-            if self.mode == "AUTO" or self.mode == "WAYPOINT":
-                if(self.setPoint != None and self.currentHeading != None):
-                    self.error = calc.smallestError(self.setPoint, self.currentHeading)
-                    self.command = self.commandFromError()
-                    self.myMotor.command(self.command["SPEED"], self.command["DIR"])
-                    if self.currentTime - lastDebugTime >= 0.5:
-                        print("MODE", self.mode, "ROUTE", self.currentWPTRouteName, "WPT", self.currentWPTName, "WPT_DIST", self.currentWPTDistance, "SET", self.setPoint, "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", self.command, "Kp", self.Kp, "Kd", self.Kd)
-                        lastDebugTime = self.currentTime
+                    # If getting close to the current waypoint, target the next waypoint of the route
+                    if self.currentWPTDistance <= self.currentParameters["WAYPOINT_SWITCHING_THRESHOLD"]:
+                        print("Reached Waypoint, switching to next.")
+                        self.selectNextWaypointFromCurrentRoute()
+
+                if self.mode == "AUTO" or self.mode == "WAYPOINT":
+                    if(self.setPoint != None and self.currentHeading != None):
+                        self.error = calc.smallestError(self.setPoint, self.currentHeading)
+                        self.command = self.commandFromError()
+                        self.myMotor.command(self.command["SPEED"], self.command["DIR"])
+                        if self.currentTime - lastDebugTime >= 0.5:
+                            print("MODE", self.mode, "ROUTE", self.currentWPTRouteName, "WPT", self.currentWPTName, "WPT_DIST", self.currentWPTDistance, "SET", self.setPoint, "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", self.command, "Kp", self.Kp, "Kd", self.Kd)
+                            lastDebugTime = self.currentTime
+        except KeyboardInterrupt:
+            self.shutdown()
 
 
 # ToDo

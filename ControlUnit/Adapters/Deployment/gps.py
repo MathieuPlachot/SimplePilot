@@ -6,7 +6,7 @@ class PilotGPS:
 
     def __init__(self):
 
-        self.listeningThread = threading.Thread(target=self.listen)
+        self.listeningThread = threading.Thread(target=self.listen, daemon=True)
         self.RMCData = {}
         self.listening = True
         self.buffer = ""
