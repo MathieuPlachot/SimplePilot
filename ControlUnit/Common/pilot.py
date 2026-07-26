@@ -22,6 +22,7 @@ class Pilot:
         self.setPoint = 90
         self.currentHeading = None
         self.currentSpeed = None
+        self.currentPosition = None
         self.myUDPHandler = UDPHandler()
         self.myUDPHandler.startListening()
         self.prevError = None
@@ -251,6 +252,14 @@ class Pilot:
         status["GPSSTATE"] = self.myGPS.getStatus()
         status["MODE"] = self.mode
         status["SPEED"] = self.myGPS.getSpeed()
+        status["LATITUDE"] = None
+        status["LONGITUDE"] = None
+        if self.currentPosition:
+            try:
+                status["LATITUDE"] = calc.latGPRMCtoNumericDegrees(self.currentPosition["LATITUDE"])
+                status["LONGITUDE"] = calc.lonGPRMCtoNumericDegrees(self.currentPosition["LONGITUDE"])
+            except Exception:
+                print("Could not convert GPS position to numeric degrees")
         status["KP"] = self.Kp
         status["KD"] = self.Kd
         status["Ki"] = self.Ki
