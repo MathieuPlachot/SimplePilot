@@ -25,8 +25,11 @@ class PilotMotor:
         print("[MOTOR][TESTING] Apply ", speed)
         # print("[MOTOR] Apply DUTY ", speed, "DIRECTION", direction)
 
-    def stop(self):        
+    def stop(self):
         print("[MOTOR][TESTING] Apply STOP ")
+
+    def cleanup(self):
+        print("[MOTOR][TESTING] Cleanup ")
         
 
 
