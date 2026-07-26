@@ -46,10 +46,15 @@ class PilotMotor:
             self.IN2PWM.change_duty_cycle(0)
             self.IN1PWM.change_duty_cycle(speed)
 
-    def stop(self):        
+    def stop(self):
         GPIO.output(self.EN_GPIO, GPIO.LOW)
         self.IN1PWM.change_duty_cycle(0)
         self.IN2PWM.change_duty_cycle(0)
+
+    def cleanup(self):
+        self.IN1PWM.stop()
+        self.IN2PWM.stop()
+        GPIO.cleanup()
         
 
 
