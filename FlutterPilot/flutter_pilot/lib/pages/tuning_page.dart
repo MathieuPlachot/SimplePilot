@@ -134,7 +134,7 @@ class _TuningPageState extends State<TuningPage> {
           Padding(
             padding: const EdgeInsets.only(top: 4.0, left: 4.0),
             child: Text(
-              'Current $label value: ${currentValue ?? '-'}',
+              'Current value: ${currentValue ?? '-'}',
               style: TextStyle(color: AppColors.muted),
             ),
           ),
