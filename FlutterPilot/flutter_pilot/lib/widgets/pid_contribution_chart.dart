@@ -22,51 +22,42 @@ class PidContributionChart extends StatelessWidget {
     final double ci = _valueOf(data, "Ci");
     final double c = _valueOf(data, "C");
 
-    // Shared scale so bar lengths are comparable across all four rows.
-    final double maxAbs = [
-      cp.abs(),
-      cd.abs(),
-      ci.abs(),
-      c.abs(),
-    ].reduce((a, b) => a > b ? a : b);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _DivergingBarRow(label: "Cp", value: cp, maxAbs: maxAbs),
+        _DivergingBarRow(label: "Cp", value: cp),
         SizedBox(height: 12),
-        _DivergingBarRow(label: "Cd", value: cd, maxAbs: maxAbs),
+        _DivergingBarRow(label: "Cd", value: cd),
         SizedBox(height: 12),
-        _DivergingBarRow(label: "Ci", value: ci, maxAbs: maxAbs),
+        _DivergingBarRow(label: "Ci", value: ci),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Divider(color: AppColors.muted, height: 1),
         ),
-        _DivergingBarRow(label: "C", value: c, maxAbs: maxAbs, emphasize: true),
+        _DivergingBarRow(label: "C", value: c, emphasize: true),
       ],
     );
   }
 }
 
 class _DivergingBarRow extends StatelessWidget {
+  static const double _scaleMax = 100.0;
+
   final String label;
   final double value;
-  final double maxAbs;
   final bool emphasize;
 
   const _DivergingBarRow({
     required this.label,
     required this.value,
-    required this.maxAbs,
     this.emphasize = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final double fraction = maxAbs == 0
-        ? 0.0
-        : (value.abs() / maxAbs).clamp(0.0, 1.0);
-    final Color color = AppColors.primary;
+    final bool overflow = value.abs() > _scaleMax;
+    final double fraction = (value.abs() / _scaleMax).clamp(0.0, 1.0);
+    final Color color = overflow ? AppColors.danger : AppColors.primary;
     final double barHeight = emphasize ? 22 : 16;
 
     return Row(
@@ -130,7 +121,7 @@ class _DivergingBarRow extends StatelessWidget {
             value.toStringAsFixed(2),
             textAlign: TextAlign.right,
             style: TextStyle(
-              color: AppColors.textDark,
+              color: overflow ? AppColors.danger : AppColors.textDark,
               fontWeight: emphasize ? FontWeight.bold : FontWeight.normal,
             ),
           ),
