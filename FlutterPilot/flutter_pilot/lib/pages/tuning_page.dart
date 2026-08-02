@@ -39,8 +39,8 @@ class _TuningPageState extends State<TuningPage> {
     if (data == null) return;
 
     setState(() {
-      _kpController.text = _formatCoeff(data['KP']);
-      _kdController.text = _formatCoeff(data['KD']);
+      _kpController.text = _formatCoeff(data['Kp']);
+      _kdController.text = _formatCoeff(data['Kd']);
       _kiController.text = _formatCoeff(data['Ki']);
       _prefilled = true;
     });
@@ -148,8 +148,8 @@ class _TuningPageState extends State<TuningPage> {
     final Map<String, dynamic>? data = context.watch<UDPHandler>().data;
 
     final bool hasChanges =
-        _isModified(_kpController, data?['KP']) ||
-        _isModified(_kdController, data?['KD']) ||
+        _isModified(_kpController, data?['Kp']) ||
+        _isModified(_kdController, data?['Kd']) ||
         _isModified(_kiController, data?['Ki']);
 
     return Scaffold(
@@ -163,8 +163,8 @@ class _TuningPageState extends State<TuningPage> {
                   PidContributionChart(),
                   SizedBox(height: 8),
                   _buildSectionDivider('Coefficients'),
-                  _buildCoefficientField('Kp', _kpController, data?['KP']),
-                  _buildCoefficientField('Kd', _kdController, data?['KD']),
+                  _buildCoefficientField('Kp', _kpController, data?['Kp']),
+                  _buildCoefficientField('Kd', _kdController, data?['Kd']),
                   _buildCoefficientField('Ki', _kiController, data?['Ki']),
                 ],
               ),

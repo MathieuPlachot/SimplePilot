@@ -17,8 +17,8 @@ class PidContributionChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, dynamic>? data = context.watch<UDPHandler>().data;
 
-    final double cp = _valueOf(data, "CP");
-    final double cd = _valueOf(data, "CD");
+    final double cp = _valueOf(data, "Cp");
+    final double cd = _valueOf(data, "Cd");
     final double ci = _valueOf(data, "Ci");
     final double c = _valueOf(data, "C");
 
