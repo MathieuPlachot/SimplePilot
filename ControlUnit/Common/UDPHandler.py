@@ -29,7 +29,7 @@ class UDPHandler:
 
         
 
-        self.srvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # TCP Socket
+        self.srvSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP Socket
         self.srvSock.bind((UDPHandler.UDP_IP, UDPHandler.UDP_PORT_RCV))
 
         self.listeningThread = threading.Thread(target=self.listen, daemon=True)
