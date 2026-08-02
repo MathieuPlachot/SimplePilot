@@ -260,11 +260,11 @@ class Pilot:
                 status["LONGITUDE"] = calc.lonGPRMCtoNumericDegrees(self.currentPosition["LONGITUDE"])
             except Exception:
                 print("Could not convert GPS position to numeric degrees")
-        status["KP"] = self.Kp
-        status["KD"] = self.Kd
+        status["Kp"] = self.Kp
+        status["Kd"] = self.Kd
         status["Ki"] = self.Ki
-        status["CP"] = self.Cp
-        status["CD"] = self.Cd
+        status["Cp"] = self.Cp
+        status["Cd"] = self.Cd
         status["Ci"] = self.Ci
         status["C"] = self.C
         status["PARAMS"] = self.currentParameters

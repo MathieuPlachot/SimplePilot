@@ -239,11 +239,11 @@ Following Statuses are sent all together in a single UDP frame upon reception of
 |SETPOINT|current setpoint targeted by the control unit|
 |SPEED|current speed measured by the control unit|
 |GPSSTATE|validity status of GPS information provided to the control unit|
-|KP|currently applied Kp (proportional) PID coefficient|
-|KD|currently applied Kd (derivative) PID coefficient|
+|Kp|currently applied Kp (proportional) PID coefficient|
+|Kd|currently applied Kd (derivative) PID coefficient|
 |Ki|currently applied Ki (integral) PID coefficient (not yet used in the command computation, see below)|
-|CP|current proportional contribution to the command (Kp * error)|
-|CD|current derivative contribution to the command (Kd * error rate)|
+|Cp|current proportional contribution to the command (Kp * error)|
+|Cd|current derivative contribution to the command (Kd * error rate)|
 |Ci|current integral contribution to the command (integral term not yet implemented, always 0)|
 |C|current total command (Cp + Cd), used to derive the motor speed and direction|
 |PARAMS|Currently used parameters provided as a JSON string complying with the schema provided in the Configuration/ControlUnit section of this README|
