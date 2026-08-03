@@ -51,7 +51,11 @@ class _TuningPageState extends State<TuningPage> {
   }
 
   bool _isModified(TextEditingController controller, dynamic currentValue) {
-    return controller.text.trim() != _formatCoeff(currentValue);
+    final double? typed = double.tryParse(controller.text.trim());
+    final double? current = currentValue is num
+        ? currentValue.toDouble()
+        : null;
+    return typed != current;
   }
 
   void _applyCoefficients() {
@@ -178,6 +182,12 @@ class _TuningPageState extends State<TuningPage> {
                   child: OutlinedButton.icon(
                     icon: Icon(Icons.input),
                     label: Text('Apply'),
+                    style: hasChanges
+                        ? OutlinedButton.styleFrom(
+                            foregroundColor: Colors.orange,
+                            side: BorderSide(color: Colors.orange),
+                          )
+                        : null,
                     onPressed: hasChanges ? _applyCoefficients : null,
                   ),
                 ),
