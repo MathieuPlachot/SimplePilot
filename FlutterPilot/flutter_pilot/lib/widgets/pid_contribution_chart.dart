@@ -105,7 +105,13 @@ class _DivergingBarRow extends StatelessWidget {
                         child: Container(
                           decoration: BoxDecoration(
                             color: color,
-                            borderRadius: BorderRadius.circular(3),
+                            borderRadius: value < 0
+                                ? BorderRadius.horizontal(
+                                    left: Radius.circular(3),
+                                  )
+                                : BorderRadius.horizontal(
+                                    right: Radius.circular(3),
+                                  ),
                           ),
                         ),
                       ),
