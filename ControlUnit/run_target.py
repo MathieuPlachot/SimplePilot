@@ -4,3 +4,5 @@ from Adapters.Deployment import motor
 
 myPilot = pilot.Pilot(motor.PilotMotor, motor.PilotMotor(), gps.PilotGPS())
 myPilot.run()
+
+#test
