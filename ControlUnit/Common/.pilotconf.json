@@ -5,20 +5,9 @@
     },
     "PID_SETTINGS": {
         "DEAD_ZONE_PERCENTAGE": 15,
-        "COEFFICIENTS": [
-            {
-                "SPEED": 2,
-                "KP": 1,
-                "KI": 2,
-                "KD": 3
-            },
-            {
-                "SPEED": 10,
-                "KP": 10,
-                "KI": 4,
-                "KD": 6
-            }
-        ]
+        "KP": 1,
+        "KI": 1,
+        "KD": 1
     },
     "WAYPOINT_SWITCHING_THRESHOLD": 10,
     "ROUTES": [

@@ -1,5 +1,6 @@
 from Common.UDPHandler import UDPHandler
 from Common.Utilities import calc
+from Common.PIDLoop import PIDLoop
 from pathlib import Path
 import time
 import json
@@ -19,30 +20,20 @@ class Pilot:
         self.currentWPTRouteName = "ROUTE1"
         self.currentWPTName = None
         self.currentWPTDistance = None
-        self.setPoint = 90
         self.currentHeading = None
         self.currentSpeed = None
         self.currentPosition = None
         self.myUDPHandler = UDPHandler()
         self.myUDPHandler.startListening()
-        self.prevError = None
         self.prevTime = None
-        self.derivativeStepSecs = 1
-        self.lastDerivativeEvalTime = None
-        self.error_rate = 0
         self.command = 0
-        self.error = 0
-        self.Kp = 0
-        self.Kd = 0
-        self.Ki = 0
-        self.Cp = 0
-        self.Ci = 0
-        self.Cd = 0
-        self.C = 0
 
-        self.forcedKp = None
-        self.forcedKi = None
-        self.forcedKd = None
+        self.GPSPIDLoop = PIDLoop(
+            self.currentParameters["PID_SETTINGS"]["KP"],
+            self.currentParameters["PID_SETTINGS"]["KI"],
+            self.currentParameters["PID_SETTINGS"]["KD"]
+            )
+
 
     def saveParamsToConf(self):
         scriptDir = Path(__file__).parent
@@ -76,12 +67,7 @@ class Pilot:
             if commandDict["COMMAND"] == UDPHandler.SET:
                 print("SET ", self.currentHeading)
                 if self.currentHeading != None:
-
-                    self.prevError = None
-                    self.prevTime = None
-                    self.error_rate = 0
-                    
-                    self.setPoint = float(self.currentHeading)
+                    self.GPSPIDLoop.setSetPoint(float(self.currentHeading))
                     return
             
             elif commandDict["COMMAND"] == UDPHandler.SET_MODE:
@@ -194,60 +180,11 @@ class Pilot:
         # print(coeffName, coeffValue)
         return coeffValue
 
-    def commandFromError(self):
-        result = {}
-
-        if self.forcedKp == None:
-            self.Kp = self.interpolateCoeffWithSpeed("KP")
-        else:
-            self.Kp = self.forcedKp
-
-        if self.forcedKi == None:
-            self.Ki = self.interpolateCoeffWithSpeed("KI")
-        else:
-            self.Ki = self.forcedKi
-
-        if self.forcedKd == None:
-            self.Kd = self.interpolateCoeffWithSpeed("KD")
-        else:
-            self.Kd = self.forcedKd
-
-        # if int(self.currentTime) % 5 == 0:
-        #     print("Using Kp,Ki,Kd", self.Kp, self.Ki, self.Kd)
-
-        # self.error_rate = 0
-
-        if self.prevError != None and self.lastDerivativeEvalTime != None:
-            if self.currentTime - self.lastDerivativeEvalTime >= self.derivativeStepSecs:
-                # delta_t = self.currentTime - self.prevTime
-                delta_err = self.error - self.prevError
-                self.error_rate = delta_err / self.derivativeStepSecs
-                self.lastDerivativeEvalTime = self.currentTime
-                self.prevError = self.error
-                print("error, prev error, delta err, error_rate", self.error, self.prevError, delta_err, self.error_rate)
-        else:
-            self.lastDerivativeEvalTime = self.currentTime
-            self.prevError = self.error
-        
-        self.Cp = self.Kp * self.error
-        self.Cd = self.Kd * self.error_rate
-        
-        self.C = self.Cp + self.Cd
-
-        if abs(self.C) < int(self.currentParameters["PID_SETTINGS"]["DEAD_ZONE_PERCENTAGE"]):
-            result["SPEED"] = 0
-        else:
-            result["SPEED"] = abs(self.C)
-
-        if self.C > 0 :
-            result["DIR"] = self.motorClass.OUTWARDS
-        else:
-            result["DIR"] = self.motorClass.INWARDS
-        return result
+    
 
     def getStatus(self):
         status = {}
-        status["SETPOINT"] = self.setPoint
+        status["SETPOINT"] = self.GPSPIDLoop.getSetPoint()
         status["CURRENT"] = self.currentHeading
         status["GPSSTATE"] = self.myGPS.getStatus()
         status["MODE"] = self.mode
@@ -260,13 +197,13 @@ class Pilot:
                 status["LONGITUDE"] = calc.lonGPRMCtoNumericDegrees(self.currentPosition["LONGITUDE"])
             except Exception:
                 print("Could not convert GPS position to numeric degrees")
-        status["Kp"] = self.Kp
-        status["Kd"] = self.Kd
-        status["Ki"] = self.Ki
-        status["Cp"] = self.Cp
-        status["Cd"] = self.Cd
-        status["Ci"] = self.Ci
-        status["C"] = self.C
+        status["Kp"] = self.GPSPIDLoop.getKp()
+        status["Kd"] = self.GPSPIDLoop.getKd()
+        status["Ki"] = self.GPSPIDLoop.getKi()
+        status["Cp"] = self.GPSPIDLoop.getCp()
+        status["Cd"] = self.GPSPIDLoop.getCd()
+        status["Ci"] = self.GPSPIDLoop.getCi()
+        status["C"] = self.GPSPIDLoop.getC()
         status["PARAMS"] = self.currentParameters
         return status
     
@@ -380,12 +317,27 @@ class Pilot:
                         self.selectNextWaypointFromCurrentRoute()
 
                 if self.mode == "AUTO" or self.mode == "WAYPOINT":
-                    if(self.setPoint != None and self.currentHeading != None):
-                        self.error = calc.smallestError(self.setPoint, self.currentHeading)
-                        self.command = self.commandFromError()
+                    if(self.GPSPIDLoop.getSetPoint() != None and self.currentHeading != None):
+                        # self.error = calc.smallestError(self.setPoint, self.currentHeading)
+                        # self.command = self.commandFromError()
+                        gpsPIDoutput = self.GPSPIDLoop.outputFromCurrentValue(self.currentHeading)
+
+                        self.command = {}
+
+                        if abs(gpsPIDoutput) < int(self.currentParameters["PID_SETTINGS"]["DEAD_ZONE_PERCENTAGE"]):
+                            self.command["SPEED"] = 0
+                        else:
+                            self.command["SPEED"] = abs(gpsPIDoutput)
+
+                        if gpsPIDoutput > 0 :
+                            self.command["DIR"] = self.motorClass.OUTWARDS
+                        else:
+                            self.command["DIR"] = self.motorClass.INWARDS
+
                         self.myMotor.command(self.command["SPEED"], self.command["DIR"])
+
                         if self.currentTime - lastDebugTime >= 0.5:
-                            print("MODE", self.mode, "ROUTE", self.currentWPTRouteName, "WPT", self.currentWPTName, "WPT_DIST", self.currentWPTDistance, "SET", self.setPoint, "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", self.command, "Kp", self.Kp, "Kd", self.Kd)
+                            # print("MODE", self.mode, "ROUTE", self.currentWPTRouteName, "WPT", self.currentWPTName, "WPT_DIST", self.currentWPTDistance, "SET", self.GPSPIDLoop.getSetPoint(), "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", self.command, "Kp", self.Kp, "Kd", self.Kd)
                             lastDebugTime = self.currentTime
         except KeyboardInterrupt:
             self.shutdown()
