@@ -154,12 +154,9 @@ class Pilot:
                 print("values", commandDict["VALUES"])
                 forcedCoeffs = commandDict["VALUES"].split(",")
                 print("coeffs", forcedCoeffs)
-                self.forcedKp = float(forcedCoeffs[0])
-                self.forcedKi = float(forcedCoeffs[1])
-                self.forcedKd = float(forcedCoeffs[2])
-                self.Kp = self.forcedKp
-                self.Ki = self.forcedKi
-                self.Kd = self.forcedKd
+                self.GPSPIDLoop.setKp(float(forcedCoeffs[0]))
+                self.GPSPIDLoop.setKi(float(forcedCoeffs[1]))
+                self.GPSPIDLoop.setKd(float(forcedCoeffs[2]))
 
 
         except Exception as e:
@@ -344,7 +341,6 @@ class Pilot:
 
 
 # ToDo
-# Linearly interpolated coefficients
 # Waypoint mode
-# Handle configuration file
 # Harmonize return values when no value is availble (None instead of "-" ?)
+# Rework smallest error with new PIDLoop architecture

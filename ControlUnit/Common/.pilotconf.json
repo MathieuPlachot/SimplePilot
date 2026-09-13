@@ -6,8 +6,8 @@
     "PID_SETTINGS": {
         "DEAD_ZONE_PERCENTAGE": 15,
         "KP": 1,
-        "KI": 1,
-        "KD": 1
+        "KI": 2,
+        "KD": 3
     },
     "WAYPOINT_SWITCHING_THRESHOLD": 10,
     "ROUTES": [
