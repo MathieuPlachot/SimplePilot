@@ -27,10 +27,19 @@ class PilotMotor:
             except:
                 print("Waiting for PWM")
 
+    def commandNumerical(self, commandValue):
+
+        if commandValue > 0 :
+            direction = PilotMotor.OUTWARDS
+        else:
+            direction = PilotMotor.INWARDS
+
+        speed = abs(commandValue)
         
+        self.commandSpeedDirection(speed, direction)
 
 
-    def command(self, speed, direction):
+    def commandSpeedDirection(self, speed, direction):
         # print("Motor ", speed, direction)
 
         # print("DUTY",speed)

@@ -319,19 +319,12 @@ class Pilot:
                         # self.command = self.commandFromError()
                         gpsPIDoutput = self.GPSPIDLoop.outputFromCurrentValue(self.currentHeading)
 
-                        self.command = {}
-
                         if abs(gpsPIDoutput) < int(self.currentParameters["PID_SETTINGS"]["DEAD_ZONE_PERCENTAGE"]):
-                            self.command["SPEED"] = 0
+                            self.myMotor.commandNumerical(0)
                         else:
-                            self.command["SPEED"] = abs(gpsPIDoutput)
+                            self.myMotor.commandNumerical(gpsPIDoutput)
 
-                        if gpsPIDoutput > 0 :
-                            self.command["DIR"] = self.motorClass.OUTWARDS
-                        else:
-                            self.command["DIR"] = self.motorClass.INWARDS
-
-                        self.myMotor.command(self.command["SPEED"], self.command["DIR"])
+                        
 
                         if self.currentTime - lastDebugTime >= 0.5:
                             # print("MODE", self.mode, "ROUTE", self.currentWPTRouteName, "WPT", self.currentWPTName, "WPT_DIST", self.currentWPTDistance, "SET", self.GPSPIDLoop.getSetPoint(), "CURRENT", self.currentHeading, "ERROR", self.error, "error rate", self.error_rate, "Cp", self.Cp, "Cd", self.Cd, "COMMAND", self.command, "Kp", self.Kp, "Kd", self.Kd)
