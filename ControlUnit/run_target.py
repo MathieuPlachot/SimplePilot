@@ -6,3 +6,4 @@ myPilot = pilot.Pilot(motor.PilotMotor, motor.PilotMotor(), gps.PilotGPS())
 myPilot.run()
 
 #test
+# git status test
